@@ -1,0 +1,33 @@
+{
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "[javascript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+    "editor.autoClosingBrackets": "always"
+  },
+  // SCSS
+  "[scss]": {
+    "editor.defaultFormatter": "stylelint.vscode-stylelint"
+  },
+  // Vue
+  "[vue]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+  },
+  "volar.preview.port": 3000,
+  "volar.completion.preferredTagNameCase": "pascal",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.fixAll.stylelint": "explicit",
+    "source.organizeImports": "explicit"
+  },
+  "eslint.alwaysShowStatus": true,
+  "eslint.format.enable": true,
+  // Extension: Stylelint
+  "stylelint.validate": [
+    "css",
+    "scss",
+    "vue"
+  ],
+}

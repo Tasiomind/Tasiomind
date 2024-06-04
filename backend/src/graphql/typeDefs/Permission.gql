@@ -1,0 +1,76 @@
+type Query {
+  getPermissionById(id: ID!): PermissionPayload!
+    @auth(rules: [{ allow: role, roles: ["admin"] }])
+  permissions(page: ListPage, filter: PermissionFilter): PermissionList!
+    @auth(rules: [{ allow: role, roles: ["admin"] }])
+}
+
+type Mutation {
+  createPermission(input: CreatePermissionInput!): PermissionMutationResponse!
+    @auth(rules: [{ allow: role, roles: ["admin"] }])
+  updatePermission(input: UpdatePermissionInput!): PermissionMutationResponse!
+    @auth(rules: [{ allow: role, roles: ["admin"] }])
+  deletePermission(id: ID!, reason: NonEmptyString): DeleteMutationResponse!
+    @auth(rules: [{ allow: role, roles: ["admin"] }])
+}
+
+type Permission {
+  id: ID!
+  scope: String!
+  description: String
+  createdAt: DateTime!
+  updatedAt: DateTime
+}
+
+type PermissionList implements List {
+  items: [Permission]!
+  totalCount: Int!
+  pageInfo: PageInfo!
+}
+
+type PermissionPayload implements Response {
+  code: ID!
+  success: Boolean!
+  message: String!
+  permission: Permission
+}
+
+type PermissionMutationResponse implements Response & FormErrors {
+  code: ID!
+  success: Boolean!
+  message: String!
+  permission: Permission
+  errors: [FieldError!]
+}
+
+# Inputs
+
+input CreatePermissionInput {
+  scope: NonEmptyString!
+  description: NonEmptyString!
+}
+
+input UpdatePermissionInput {
+  id: ID!
+  scope: NonEmptyString
+  description: NonEmptyString
+}
+
+input PermissionFilter {
+  where: PermissionAttributesWhere
+  include: PermissionAssociationInclude
+}
+
+input PermissionAttributesWhere {
+  id: IDFieldFilter
+  scope: StringFieldFilter
+  createdAt: DateTimeFieldFilter
+  updatedAt: DateTimeFieldFilter
+  and: [PermissionAttributesWhere!]
+  or: [PermissionAttributesWhere!]
+  not: [PermissionAttributesWhere!]
+}
+
+input PermissionAssociationInclude {
+  roles: RoleFilter
+}

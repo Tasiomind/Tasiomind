@@ -1,0 +1,45 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "target": "esnext",
+    "useDefineForClassFields": true,
+    "allowSyntheticDefaultImports": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "isolatedModules": true,
+    "strict": true,
+    "jsx": "preserve",
+    "jsxFactory": "h",
+    "jsxFragmentFactory": "Fragment",
+    "sourceMap": false,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "lib": [
+      "esnext",
+      "dom"
+    ],
+    "types": [
+      "vuetify",
+      "vite/client",
+    ],
+    "paths": {
+      "@/*": [
+        "src/*"
+      ],
+      "@appConfig": [
+        "appConfig.js"
+      ],
+      "@axios": [
+        "src/plugins/axios.js"
+      ],
+    },
+  },
+  "include": [
+    "src/**/*.js",
+    "src/**/*.d.ts",
+    "src/**/*.jsx",
+    "src/**/*.vue",
+    "vite.config.js",
+    "auto-imports.d .ts",
+  ]
+}

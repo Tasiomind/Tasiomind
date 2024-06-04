@@ -1,0 +1,30 @@
+{
+  "reset": {
+    "title": "Zurücksetzen",
+    "passwordButton": "Passwort zurücksetzen"
+  },
+  "otp": {
+    "title": "Einmalpasswort"
+  },
+  "verify": {
+    "title": "Verifizieren",
+    "paragraph": "Bitte verifizieren Sie Ihre E-Mail-Adresse.",
+    "emailButton": "E-Mail verifizieren",
+    "thanks": "Danke",
+    "team": "Verifizierungsteam",
+    "footerText": "Danke, dass Sie unseren Service nutzen."
+  },
+  "login": {
+    "failedTitle": "Fehlgeschlagene Anmeldung",
+    "failedParagraph": "Ihre Anmeldung ist fehlgeschlagen. Bitte versuchen Sie es erneut."
+  },
+  "delete": {
+    "title": "Konto löschen",
+    "accountButton": "Konto löschen"
+  },
+  "welcome": {
+    "title": "Willkommen"
+  },
+  "reset.title": "reset.title",
+  "reset.passwordButton": "reset.passwordButton"
+}

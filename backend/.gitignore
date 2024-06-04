@@ -1,0 +1,8 @@
+.history
+node_modules
+.log
+.vscode
+test
+log/*
+.env
+config/*

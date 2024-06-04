@@ -1,0 +1,195 @@
+type Query {
+  me: UserPayload! @auth
+  getUserById(id: ID!): UserPayload! @auth
+
+  # admin
+  users(page: ListPage, filter: UserFilter): UserList!
+    @auth(rules: [{ allow: role, roles: ["admin"] }])
+}
+
+type Mutation {
+  updateCurrentUserFullname(input: UpdateFullnameInput!): UserMutationResponse!
+    @auth
+  updateCurrentUserUsername(username: String!): UserMutationResponse! @auth
+  updateCurrentUserLocale(locale: Locale!): UserMutationResponse! @auth
+  updateCurrentUserPhoneNumber(phoneNumber: PhoneNumber): UserMutationResponse!
+    @auth
+  updateCurrentUserTimeZone(timezone: TimeZone!): UserMutationResponse! @auth
+  updateCurrentUserPassword(input: UpdatePasswordInput!): UserMutationResponse!
+    @auth
+  verifyPhoneNumber(token: String!): UserMutationResponse! @auth
+  removeCurrentUserAvatar: UserMutationResponse! @auth
+
+  # Admin
+  createUser(input: CreateUserInput!): UserMutationResponse!
+    @auth(rules: [{ allow: role, roles: ["admin"] }])
+  changeUserFullname(input: ChangeUserFullnameInput!): UserMutationResponse!
+    @auth(rules: [{ allow: role, roles: ["admin"] }])
+  changeUserUsername(input: ChangeUsernameInput!): UserMutationResponse!
+    @auth(rules: [{ allow: role, roles: ["admin"] }])
+  changeUserLocale(input: ChangeUserLocaleInput!): UserMutationResponse!
+    @auth(rules: [{ allow: role, roles: ["admin"] }])
+  changeUserEmail(input: ChangeUserEmailInput!): UserMutationResponse!
+    @auth(rules: [{ allow: role, roles: ["admin"] }])
+  changeUserTimeZone(input: ChangeUserTimeZoneInput!): UserMutationResponse!
+    @auth(rules: [{ allow: role, roles: ["admin"] }])
+  changeUserPhoneNumber(
+    input: ChangeUserPhoneNumberInput!
+  ): UserMutationResponse! @auth(rules: [{ allow: role, roles: ["admin"] }])
+  changeUserPassword(input: ChangeUserPasswordInput!): UserMutationResponse!
+    @auth(rules: [{ allow: role, roles: ["admin"] }])
+  blockUser(id: ID!, reason: NonEmptyString): UserMutationResponse!
+    @auth(rules: [{ allow: role, roles: ["admin"] }])
+  unblockUser(id: ID!, reason: NonEmptyString): UserMutationResponse!
+    @auth(rules: [{ allow: role, roles: ["admin"] }])
+  removeUserAvatar(id: ID!): UserMutationResponse!
+    @auth(rules: [{ allow: role, roles: ["admin"] }])
+  deleteUser(id: ID!, reason: NonEmptyString): DeleteMutationResponse!
+    @auth(rules: [{ allow: role, roles: ["admin"] }])
+  assignRolesToUser(userId: ID!, roleIds: [ID!]!): UserMutationResponse!
+    @auth(rules: [{ allow: role, roles: ["admin"] }])
+  removeRolesFromUser(userId: ID!, roleIds: [ID!]!): UserMutationResponse!
+    @auth(rules: [{ allow: role, roles: ["admin"] }])
+}
+
+type User {
+  id: ID!
+  firstName: String!
+  lastName: String!
+  fullName: String!
+  username: String
+  email: EmailAddress! @auth(rules: [{ allow: owner, identityClaim: "id" }])
+  phoneNumber: PhoneNumber @auth(rules: [{ allow: owner, identityClaim: "id" }])
+  avatar: Photo
+  socialAvatarURL: URL
+  isOwner: Boolean!
+  isLoggedIn: Boolean! @auth(rules: [{ allow: role, roles: ["admin"] }])
+  isLocked: Boolean!
+  locale: Locale!
+  timezone: TimeZone!
+  emailVerified: Boolean!
+  phoneNumberVerified: Boolean!
+  roles: [Role]! @auth(rules: [{ allow: owner, identityClaim: "id" }])
+  createdAt: DateTime!
+  updatedAt: DateTime
+  passwordResetAt: DateTime
+    @auth(rules: [{ allow: owner, identityClaim: "id" }])
+  lastLogin: DateTime
+  status: AccountStatus! @auth(rules: [{ allow: owner, identityClaim: "id" }])
+}
+
+type UserList implements List {
+  items: [User]!
+  totalCount: Int!
+  pageInfo: PageInfo!
+}
+
+enum AccountStatus {
+  BLOCKED
+  LOCKED
+  PROVISIONED
+  ACTIVE
+}
+
+type UserPayload implements Response {
+  code: ID!
+  success: Boolean!
+  message: String!
+  user: User
+}
+
+type UserMutationResponse implements Response & FormErrors {
+  code: ID!
+  success: Boolean!
+  message: String!
+  errors: [FieldError!]
+  user: User
+}
+
+# Inputs
+
+input CreateUserInput {
+  firstName: NonEmptyString!
+  lastName: NonEmptyString!
+  username: NonEmptyString
+  email: EmailAddress!
+  password: NonEmptyString!
+  phoneNumber: PhoneNumber
+  locale: Locale
+  timezone: TimeZone
+}
+
+input UpdateFullnameInput {
+  firstName: NonEmptyString!
+  lastName: NonEmptyString!
+}
+
+input UpdatePasswordInput {
+  oldPassword: NonEmptyString!
+  newPassword: NonEmptyString!
+}
+
+input ChangeUserFullnameInput {
+  id: ID!
+  firstName: NonEmptyString!
+  lastName: NonEmptyString!
+}
+
+input ChangeUsernameInput {
+  id: ID!
+  username: NonEmptyString!
+}
+
+input ChangeUserEmailInput {
+  id: ID!
+  email: EmailAddress!
+}
+
+input ChangeUserPasswordInput {
+  id: ID!
+  password: NonEmptyString!
+}
+
+input ChangeUserLocaleInput {
+  id: ID!
+  locale: Locale!
+}
+
+input ChangeUserPhoneNumberInput {
+  id: ID!
+  phoneNumber: PhoneNumber
+}
+
+input ChangeUserTimeZoneInput {
+  id: ID!
+  timezone: TimeZone!
+}
+
+input UserFilter {
+  where: UserAttributesWhere
+  include: UserAssociationInclude
+}
+
+input UserAttributesWhere {
+  id: IDFieldFilter
+  firstName: StringFieldFilter
+  lastName: StringFieldFilter
+  username: StringFieldFilter
+  email: StringFieldFilter
+  phoneNumber: StringFieldFilter
+  emailVerified: BooleanFieldFilter
+  phoneNumberVerified: BooleanFieldFilter
+  timezone: StringFieldFilter
+  locale: StringFieldFilter
+  status: StringFieldFilter
+  lastLogin: DateTimeFieldFilter
+  createdAt: DateTimeFieldFilter
+  updatedAt: DateTimeFieldFilter
+  and: [UserAttributesWhere!]
+  or: [UserAttributesWhere!]
+  not: [UserAttributesWhere!]
+}
+
+input UserAssociationInclude {
+  roles: RoleFilter
+}

@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "~*": [ "./src/*" ],
+      "tests/*": [ "../backend/tests/*" ],
+      "locales/*": [ "locales/*" ]
+    }
+  }
+}

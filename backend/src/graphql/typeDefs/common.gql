@@ -1,0 +1,104 @@
+# Generic
+interface Response {
+  code: ID!
+  success: Boolean!
+  message: String!
+}
+
+# Mutation
+
+type DeleteMutationResponse implements Response {
+  code: ID!
+  success: Boolean!
+  message: String!
+  id: ID
+}
+
+type RequestResponse implements Response {
+  code: ID!
+  success: Boolean!
+  message: String!
+}
+
+# Form
+
+type FieldError {
+  message: String!
+  field: String!
+}
+
+interface FormErrors {
+  errors: [FieldError!]
+}
+
+type RequestFormResponse implements Response & FormErrors {
+  code: ID!
+  success: Boolean!
+  message: String!
+  errors: [FieldError!]
+}
+
+# Image
+
+"https://sharp.pixelplumbing.com/api-resize#resize"
+enum ImageResizeMode {
+  cover
+  contain
+  fill
+  inside
+  outside
+}
+
+input ImageResizeInput {
+  width: Int!
+  height: Int!
+  fit: ImageResizeMode
+}
+
+type Photo {
+  url(resize: ImageResizeInput): URL!
+  thumbnail(resize: ImageResizeInput): URL
+}
+
+# File
+
+type File {
+  id: ID!
+  size: Byte!
+  name: String!
+  mimeType: String!
+  createdAt: DateTime!
+  updatedAt: DateTime
+}
+
+# Pagination
+
+enum Sort {
+  asc
+  desc
+}
+
+input ListPageOrder {
+  field: String!
+  sort: Sort!
+}
+
+"'before' takes precedence over 'after'"
+input ListPage {
+  limit: Int = 100
+  before: ID
+  after: ID
+  order: [ListPageOrder]
+}
+
+type PageInfo {
+  startCursor: ID
+  endCursor: ID
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+}
+
+interface List {
+  totalCount: Int!
+  pageInfo: PageInfo!
+}

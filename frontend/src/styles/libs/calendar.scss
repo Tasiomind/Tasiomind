@@ -1,0 +1,104 @@
+@use "@/styles/vuetify/variables.scss" as vuetify;
+
+.v-application .fc {
+  --fc-today-bg-color: rgba(var(--v-theme-on-surface), 0.04);
+  --fc-border-color: rgba(var(--v-border-color), var(--v-border-opacity));
+  --fc-neutral-bg-color: rgb(var(--v-theme-background));
+  --fc-list-event-hover-bg-color: rgba(var(--v-theme-on-surface), 0.02);
+  --fc-page-bg-color: rgb(var(--v-theme-surface));
+  --fc-event-border-color: rgb(var(--v-theme-primary));
+  --fc-button-bg-color: rgba(var(--v-theme-primary), var(--v-activated-opacity));
+  --fc-button-border-color: rgba(var(--v-theme-primary), var(--v-activated-opacity));
+  --fc-button-hover-bg-color: rgb(var(--v-theme-primary));
+  --fc-button-hover-border-color: rgb(var(--v-theme-primary));
+  --fc-button-active-bg-color: rgb(var(--v-theme-primary));
+  --fc-button-active-border-color: rgb(var(--v-theme-primary));
+  --fc-event-bg-color: rgb(var(--v-theme-primary));
+
+  a {
+    color: inherit;
+  }
+
+  .fc-toolbar.fc-header-toolbar {
+    flex-wrap: wrap;
+    padding: vuetify.$card-text-padding;
+    margin: 0;
+    border-block-end: none;
+    border-start-end-radius: vuetify.$border-radius-root;
+    border-start-start-radius: vuetify.$border-radius-root;
+    row-gap: 1rem;
+
+    .fc-toolbar-title {
+      font-size: 1.25rem;
+      font-weight: 500;
+    }
+  }
+
+  .fc-col-header-cell-cushion {
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  table.fc-scrollgrid {
+    border-width: 1px 0 0;
+    border-radius: 0 0 vuetify.$border-radius-root vuetify.$border-radius-root;
+
+    .fc-scrollgrid-section > td {
+      border-radius: 0 0 vuetify.$border-radius-root vuetify.$border-radius-root;
+    }
+  }
+
+  .fc-timegrid-axis-cushion,
+  .fc-timegrid-slot-label-cushion {
+    font-size: 0.875rem;
+  }
+
+  .fc-button {
+    padding: vuetify.$button-card-actions-padding;
+    block-size: 36px;
+    color: rgb(var(--v-theme-primary));
+
+    &:focus,
+    &:active {
+      box-shadow: none !important;
+    }
+
+    &:hover {
+      color: #fff;
+    }
+
+    &:disabled {
+      color: rgb(var(--v-theme-primary));
+    }
+  }
+
+  .fc-prev-button,
+  .fc-next-button {
+    .fc-icon {
+      vertical-align: bottom;
+    }
+  }
+
+  .fc-daygrid-day-events {
+    margin-inline: 0.5rem;
+
+    .fc-event-main {
+      padding-inline: 0.25rem;
+    }
+  }
+
+  .fc-timegrid-divider {
+    padding: 0;
+  }
+
+  .fc-view-harness {
+    min-block-size: 40.625rem;
+  }
+
+  // https://github.com/fullcalendar/fullcalendar/issues/6407
+  .fc-col-header,
+  .fc-daygrid-body,
+  .fc-scrollgrid-sync-table {
+    inline-size: 100% !important;
+  }
+}

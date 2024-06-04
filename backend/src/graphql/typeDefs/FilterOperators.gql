@@ -1,0 +1,79 @@
+"""
+Based on Sequelize operators
+https://sequelize.org/docs/v6/core-concepts/model-querying-basics/#operators
+"""
+input IDFieldFilter {
+  eq: ID
+  ne: ID
+  is: ID
+
+  in: [ID!]
+  notIn: [ID!]
+}
+
+input NumberFieldFilter {
+  eq: Int
+  ne: Int
+  is: Int
+
+  in: [Int!]
+  notIn: [Int!]
+
+  gt: Int
+  gte: Int
+  lt: Int
+  lte: Int
+  between: [Int!]
+  notBetween: [Int!]
+}
+
+input StringFieldFilter {
+  eq: String
+  ne: String
+  is: String
+
+  in: [String!]
+  notIn: [String!]
+
+  like: String
+  notLike: String
+  startsWith: String
+  endsWith: String
+  substring: String
+  iLike: String
+  notILike: String
+  regexp: String
+  notRegexp: String
+  iRegexp: String
+  notIRegexp: String
+}
+
+input DateTimeFieldFilter {
+  eq: DateTime
+  ne: DateTime
+  is: DateTime
+
+  gt: DateTime
+  gte: DateTime
+  lt: DateTime
+  lte: DateTime
+  between: [DateTime!]
+  notBetween: [DateTime!]
+}
+
+input DateFieldFilter {
+  eq: Date
+  ne: Date
+  is: Date
+
+  gt: Date
+  gte: Date
+  lt: Date
+  lte: Date
+  between: [Date!]
+  notBetween: [Date!]
+}
+
+input BooleanFieldFilter {
+  is: Boolean
+}

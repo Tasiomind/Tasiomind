@@ -1,0 +1,42 @@
+.v-theme-skins-bordered {
+  --v-theme-background: var(--v-theme-surface) !important;
+
+  .layout-navbar,
+  .v-footer {
+    background-color: rgb(var(--v-theme-surface)) !important;
+  }
+
+  &.v-theme-skins-decent {
+    .v-card:not(.v-card--flat),
+    .layout-navbar .v-toolbar__content,
+    .v-footer .v-footer-content,
+    .layout-vertical-nav,
+    .layout-horizontal-nav,
+    .v-stepper.v-sheet {
+      border: .0625rem solid rgba(var(--v-border-color),var(--v-border-opacity));
+      box-shadow: none!important;
+    }
+
+    &.v-theme-horizontal-nav {
+      .layout-navbar .v-toolbar__content {
+        border: none;
+      }
+    }
+
+    // expansion panel
+    .v-expansion-panels{
+      .v-expansion-panel {
+        border: .0625rem solid rgba(var(--v-border-color),var(--v-border-opacity));
+        margin-block-end: -0.125rem;
+
+        .v-expansion-panel__shadow{
+          box-shadow: none !important;
+        }
+
+        &:not(:first-child)::after {
+          content :none;
+        }
+      }
+    }
+  }
+}

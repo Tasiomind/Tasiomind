@@ -1,0 +1,98 @@
+type Query {
+  getRoleById(id: ID!): RolePayload!
+    @auth(rules: [{ allow: role, roles: ["admin"] }])
+  getRoleMembers(
+    id: ID!
+    page: ListPage
+    where: UserAttributesWhere
+  ): UserList! @auth(rules: [{ allow: role, roles: ["admin"] }])
+  roles(page: ListPage, filter: RoleFilter): RoleList!
+    @auth(rules: [{ allow: role, roles: ["admin"] }])
+}
+
+type Mutation {
+  createRole(input: CreateRoleInput!): RoleMutationResponse!
+    @auth(rules: [{ allow: role, roles: ["admin"] }])
+  updateRole(input: UpdateRoleInput!): RoleMutationResponse!
+    @auth(rules: [{ allow: role, roles: ["admin"] }])
+  deleteRole(id: ID!, reason: NonEmptyString): DeleteMutationResponse!
+    @auth(rules: [{ allow: role, roles: ["admin"] }])
+  addPermissionsToRole(
+    roleId: ID!
+    permissionIds: [ID!]!
+  ): RoleMutationResponse! @auth(rules: [{ allow: role, roles: ["admin"] }])
+  assignRoleToUsers(roleId: ID!, userIds: [ID!]!): RoleMutationResponse!
+    @auth(rules: [{ allow: role, roles: ["admin"] }])
+  removePermissionsFromRole(
+    roleId: ID!
+    permissionIds: [ID!]!
+  ): RoleMutationResponse! @auth(rules: [{ allow: role, roles: ["admin"] }])
+  removeUsersFromRole(roleId: ID!, userIds: [ID!]!): RoleMutationResponse!
+    @auth(rules: [{ allow: role, roles: ["admin"] }])
+}
+
+type Role {
+  id: ID!
+  name: String!
+  description: String
+  permissions: [Permission]!
+  permissionCount: Int!
+  userCount: Int!
+  createdAt: DateTime!
+  updatedAt: DateTime
+}
+
+type RoleList implements List {
+  items: [Role]!
+  totalCount: Int!
+  pageInfo: PageInfo!
+}
+
+type RoleMutationResponse implements Response & FormErrors {
+  code: ID!
+  success: Boolean!
+  message: String!
+  role: Role
+  errors: [FieldError!]
+}
+
+type RolePayload implements Response {
+  code: ID!
+  success: Boolean!
+  message: String!
+  role: Role
+}
+
+# Inputs
+
+input CreateRoleInput {
+  name: NonEmptyString!
+  description: NonEmptyString
+  permissionIds: [ID!]
+}
+
+input UpdateRoleInput {
+  id: ID!
+  name: NonEmptyString
+  description: NonEmptyString
+}
+
+input RoleFilter {
+  where: RoleAttributesWhere
+  include: RoleAssociationInclude
+}
+
+input RoleAttributesWhere {
+  id: IDFieldFilter
+  name: StringFieldFilter
+  createdAt: DateTimeFieldFilter
+  updatedAt: DateTimeFieldFilter
+  and: [RoleAttributesWhere!]
+  or: [RoleAttributesWhere!]
+  not: [RoleAttributesWhere!]
+}
+
+input RoleAssociationInclude {
+  permissions: PermissionFilter
+  members: UserFilter
+}

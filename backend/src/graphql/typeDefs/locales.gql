@@ -1,0 +1,23 @@
+type Query {
+  getLocales: [LocaleData]!
+  getCountries: [CountryData]!
+  getTimeZones: [TimeZoneData]!
+}
+
+type LocaleData {
+  code: Locale!
+  name: String!
+}
+
+type TimeZoneData {
+  timeZone: TimeZone!
+  offset: UtcOffset!
+}
+
+type CountryData {
+  name: String!
+  code: CountryCode!
+  dialCode: String!
+  phoneNumberPattern: String!
+  phoneNumberPlaceholder: String!
+}

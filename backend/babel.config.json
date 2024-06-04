@@ -1,0 +1,19 @@
+{
+  "presets": [ [ "@babel/preset-env", { "targets": { "node": "current" } } ] ],
+  "plugins": [
+    "@babel/plugin-transform-runtime",
+    [
+      "module-resolver",
+      {
+        "root": [ "./" ],
+        "alias": {
+          "^~(.+)": "./src/\\1",
+          "tests": "./tests",
+          "locales": "./locales",
+          "config": "./config"
+        },
+        "extensions": [ ".js", ".json" ]
+      }
+    ]
+  ]
+}

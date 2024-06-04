@@ -1,0 +1,17 @@
+{
+  "reset-title": "Tasiomind Passwort zurücksetzen",
+  "reset-password-button": "Passwort zurücksetzen",
+  "otp-title": "otp-title",
+  "verify-title": "verify-title",
+  "verify-paragraph": "verify-paragraph",
+  "verify-email-button": "verify-email-button",
+  "verify-thanks": "verify-thanks",
+  "verify-team": "verify-team",
+  "verify-footer-text": "verify-footer-text",
+  "failed-login-title": "failed-login-title",
+  "failed-login-paragraph": "failed-login-paragraph",
+  "delete-title": "delete-title",
+  "delete-account-button": "delete-account-button",
+  "welcome-title": "welcome-title",
+  "resetTitle": "resetTitle"
+}
