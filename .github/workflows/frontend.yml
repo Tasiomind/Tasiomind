@@ -1,0 +1,44 @@
+name: Frontend CI
+
+on:
+  push:
+    branches: ["master"]
+  pull_request:
+    branches: ["master"]
+
+jobs:
+  build-frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Cache Docker layers
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Build and push Frontend Docker image
+        run: |
+          docker build --cache-from=type=local,src=/tmp/.buildx-cache --tag frontend:latest ./frontend
+          docker build --cache-from=type=local,src=/tmp/.buildx-cache --tag frontend:latest ./frontend
+          docker save frontend:latest | gzip > frontend_latest.tar.gz
+        shell: bash
+
+      - name: Load and run Frontend Docker image
+        run: |
+          docker load < frontend_latest.tar.gz
+          docker run -d -p 3000:80 --name frontend frontend:latest
+        shell: bash
+
+      - name: Run tests for Frontend
+        run: |
+          docker exec frontend npm test
+        shell: bash

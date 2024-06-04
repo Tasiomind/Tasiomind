@@ -9,6 +9,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "build:analyze": "vite build --mode analyze",
+    "test": "vite test",
     "test:unit": "vitest",
     "build-only": "vite build"
   },
