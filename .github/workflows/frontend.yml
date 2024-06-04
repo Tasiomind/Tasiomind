@@ -7,7 +7,7 @@ on:
     branches: ["master"]
 
 jobs:
-  build-frontend:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -27,15 +27,15 @@ jobs:
 
       - name: Build and push Frontend Docker image
         run: |
-          docker build --cache-from=type=local,src=/tmp/.buildx-cache --tag frontend:latest ./frontend
-          docker build --cache-from=type=local,src=/tmp/.buildx-cache --tag frontend:latest ./frontend
+          mkdir -p /tmp/.buildx-cache
+          docker build --cache-from=type=local,src=/tmp/.buildx-cache --tag frontend:latest -f ./frontend/frontend.dockerfile ./frontend
           docker save frontend:latest | gzip > frontend_latest.tar.gz
         shell: bash
 
       - name: Load and run Frontend Docker image
         run: |
           docker load < frontend_latest.tar.gz
-          docker run -d -p 3000:80 --name frontend frontend:latest
+          docker run -d -p 3000:3000 --name frontend frontend:latest
         shell: bash
 
       - name: Run tests for Frontend
