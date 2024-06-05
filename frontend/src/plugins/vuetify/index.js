@@ -1,6 +1,5 @@
 import vueI18n from '@/plugins/i18n';
 import vuetify from '@/plugins/vuetify/vuetify';
-import { loadFonts } from '@/plugins/webfontloader';
 import { createPinia, defineStore } from 'pinia';
 import Vue3Toastify from 'vue3-toastify';
 import router from '@/router';
@@ -26,7 +25,6 @@ const toastifyOptions = {
 
 // Register plugins function
 export const registerPlugins = app => {
-  loadFonts();
   app
     .use(vuetify)
     .use(router)
