@@ -87,7 +87,7 @@
     "@vue/cli-plugin-babel": "~5.0.0",
     "@vue/cli-plugin-eslint": "~5.0.0",
     "@vue/cli-service": "^5.0.8",
-    "@vue/devtools": "^6.6.3",
+    "@vue/devtools": "^7.2.1",
     "autoprefixer": "^10.4.19",
     "globals": "^15.3.0",
     "pinia": "^2.1.7",
