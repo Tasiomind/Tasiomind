@@ -1,7 +1,7 @@
 import https from 'node:https';
 import http from 'node:http';
 import os from 'node:os';
-import { readSSLKeys } from '~utils/ssl';
+import { generateCertificate } from '~utils/certificate';
 import config from 'config/app.config';
 
 const hostname = os.hostname();
@@ -13,7 +13,11 @@ export const createServer = async app => {
 
   try {
     if (isHttps) {
-      const options = await readSSLKeys();
+      const certificate = await generateCertificate();
+      const options = {
+        key: certificate.key,
+        cert: certificate.cert,
+      };
       server = https.createServer(options, app);
     } else {
       server = http.createServer(app);

@@ -1,4 +1,5 @@
-import { nanoid } from '~utils/uuid';
+import { uuidv4 } from '~utils/uuid';
+
 import { Model } from 'sequelize';
 import {
   APPLICATION_DESCRIPTION_EMPTY_ERROR,

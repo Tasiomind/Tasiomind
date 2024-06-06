@@ -1,15 +1,15 @@
-const session = require('express-session');
+import session from 'express-session';
+import { uuidv4 } from '~utils/uuid';
 
-const { uuidv4 } = require('../../utils/uuid');
 const SESSION_SECRET = uuidv4();
 
-module.exports = app => {
+export default app => {
   // Sessions allow us to Contact data on visitors from request to request
   // This keeps admins logged in and allows us to send flash messages
   // store: new FileStore(),
   app.use(
     session({
-      name: 'session_id',
+      name: 'UUID',
       saveUninitialized: true,
       resave: false,
       rolling: false,

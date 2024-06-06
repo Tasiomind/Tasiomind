@@ -1,38 +1,48 @@
-import retry from "retry";
-import log from "~utils/logger";
-import config from "config/app.config";
+import fs from 'fs';
+import path from 'path';
 
-const remove = (options) => {
-  const { key: Key, bucket: Bucket } = options || {};
-  if (config.appStatus === "test") {
-    return;
-  }
-  if (!(Key && Bucket)) {
-    return;
-  }
+const baseDir = path.join(__dirname, 'storage/files');
 
-  const operation = retry.operation({
-    retries: 3,
-  });
+export const storage = {
+  createFile: (fileName, data, callback) => {
+    const filePath = path.join(baseDir, fileName + '.json');
+    fs.open(filePath, 'wx', (err, fileDescriptor) => {
+      if (!err && fileDescriptor) {
+        const stringData = JSON.stringify(data);
+        fs.writeFile(fileDescriptor, stringData, err => {
+          if (!err) {
+            fs.close(fileDescriptor, err => {
+              if (!err) {
+                callback(false);
+              } else {
+                callback('Error closing file');
+              }
+            });
+          } else {
+            callback('Error writing to file');
+          }
+        });
+      } else {
+        callback('Could not create new file, it may already exist');
+      }
+    });
+  },
 
-  operation.attempt((attempt) => {
-    // s3.deleteObject({ Key, Bucket }, (err) => {
-    //   if (operation.retry(err)) {
-    //     log.info(
-    //       {
-    //         attempt,
-    //         Key,
-    //         err,
-    //       },
-    //       "Retry"
-    //     );
-    //   }
-    // });
-  });
+  readFile: (fileName, callback) => {
+    const filePath = path.join(baseDir, fileName + '.json');
+    fs.readFile(filePath, 'utf8', (err, data) => {
+      callback(err, data);
+    });
+  },
+
+  deleteFile: (fileName, callback) => {
+    const filePath = path.join(baseDir, fileName + '.json');
+    fs.unlink(filePath, err => {
+      if (!err) {
+        callback(false);
+      } else {
+        callback('Error deleting file');
+      }
+    });
+  },
 };
-
-const storage = {
-  remove,
-};
-
-export default storage;

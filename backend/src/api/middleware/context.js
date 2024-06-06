@@ -1,10 +1,10 @@
 import db from '~db/models';
-import { generateToken, verify } from '~utils/jwt';
+import * as jwt from '~utils/jwt';
 import otp from '~utils/otp';
 import log from '~utils/logger';
 import cache from '~utils/cache';
 import mailer from '~utils/mailer';
-// import storage from '~utils/storage';
+import storage from '~utils/storage';
 import analytics from '~services/analytics';
 import Sentry from '~services/sentry';
 import getUser from '~utils/getUser';
@@ -13,14 +13,12 @@ import { CLIENTS_CACHE_KEY } from '~helpers/constants/auth';
 
 const contextMiddleware = async (req, _res, next) => {
   const { authorization, client_id: clientId } = req.headers;
-  console.log(generateToken());
   let tokenInfo;
   let sessionId;
   const accessToken = authorization?.split(' ')?.[1];
   let currentUser;
   let isRootUser = false;
   let isAdmin = false;
-
   let clients = await cache.getJSON(CLIENTS_CACHE_KEY);
 
   if (!clients) {
@@ -31,7 +29,7 @@ const contextMiddleware = async (req, _res, next) => {
 
   if (accessToken) {
     try {
-      tokenInfo = verify(accessToken, { clientId });
+      tokenInfo = jwt.verify(accessToken, { clientId });
       sessionId = await cache.get(`${clientId}:${tokenInfo.sub}`);
 
       currentUser = await getUser(tokenInfo.sub);
@@ -71,7 +69,7 @@ const contextMiddleware = async (req, _res, next) => {
     cache,
     isAdmin,
     isRootUser,
-    // storage,
+    storage,
     tokenInfo,
     sessionId,
     clientId,

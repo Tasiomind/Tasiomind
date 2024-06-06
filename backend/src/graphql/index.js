@@ -1,5 +1,5 @@
 import { createServer } from '~utils/http/http';
-
+import os from 'node:os';
 import { ApolloServer } from 'apollo-server-express';
 import { ApolloServerPluginDrainHttpServer, AuthenticationError } from 'apollo-server-core';
 
@@ -8,13 +8,13 @@ import { INVALID_CLIENT_ID } from '~helpers/constants/responseCodes';
 
 import logger from '~utils/logger';
 
-import typeDefs from '../graphql/typeDefs';
-import resolvers from '../graphql/resolvers';
+import typeDefs from './typeDefs';
+import resolvers from './resolvers';
 
-import dataSources from '../graphql/datasources';
-import applyDirectives from '../graphql/directives';
+import dataSources from './datasources';
+import applyDirectives from './directives';
 
-import errorPlugin from '../graphql/plugins/errorPlugin';
+import errorPlugin from './plugins/errorPlugin';
 
 const createSchema = () => {
   const schema = makeExecutableSchema({
@@ -55,7 +55,7 @@ export const startApolloServer = async app => {
   const server = await createApolloServer(app, httpServer);
 
   await server.start().then(async () => {
-    console.log('Apollo server started', server.graphqlPath);
+    console.log(`Apollo server started at https://${os.hostname()}/${server.graphqlPath}`);
   });
 
   server.applyMiddleware({ app });

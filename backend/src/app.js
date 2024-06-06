@@ -17,7 +17,7 @@ i18nConfig(app);
 //-------------------------------------------------------
 // || ======== *** Apollo Server *** ========= ||
 //-------------------------------------------------------
-import { startApolloServer } from './utils';
+import { startApolloServer } from './graphql';
 const server = startApolloServer(app);
 //-------------------------------------------------------
 // || ======== *** SECURITY MIDDLEWARE *** ========= ||

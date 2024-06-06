@@ -1,4 +1,7 @@
+import fs from 'fs';
 import jwt, { NotBeforeError, TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
+import verifyGoogleToken from '~services/googleOAuth';
+import verifyFacebookToken from '~services/facebookOAuth';
 import {
   TOKEN_EXPIRED_ERROR,
   TOKEN_INVALID_ERROR,
@@ -7,16 +10,14 @@ import {
 import { FACEBOOK_PROVIDER, GOOGLE_PROVIDER } from '~helpers/constants/auth';
 import TokenError from '../errors/TokenError';
 import config from 'config/app.config';
-import { readSSLKeys } from '~utils/ssl';
 
-const verify = async (token, { clientId, ...options } = {}) => {
-  const ssl = await readSSLKeys();
-  const publicKey = ssl.cert;
+export const verify = (token, { clientId, ...options } = {}) => {
+  const publicKey = fs.readFileSync('./config/certificates/public.pem');
 
   try {
     return jwt.verify(token, publicKey, {
       ...options,
-      issuer: hostname,
+      issuer: config.hostname,
       audience: clientId,
     });
   } catch (e) {
@@ -32,7 +33,7 @@ const verify = async (token, { clientId, ...options } = {}) => {
   }
 };
 
-const verifySocialToken = async ({ provider, token }) => {
+export const verifySocialToken = async ({ provider, token }) => {
   let userInfo;
   switch (provider) {
     case GOOGLE_PROVIDER:
@@ -46,9 +47,4 @@ const verifySocialToken = async ({ provider, token }) => {
   }
 
   return userInfo;
-};
-
-export default {
-  verify,
-  verifySocialToken,
 };
