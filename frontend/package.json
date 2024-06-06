@@ -70,7 +70,7 @@
     "vue3-apexcharts": "^1.4.4",
     "vue3-perfect-scrollbar": "^2.0.0",
     "vue3-promise-dialog": "^0.3.4",
-    "vue3-toastify": "^0.1.14",
+    "vue3-toastify": "^0.2.1",
     "vuetify": "^3.5.0",
     "vuex": "^4.0.2",
     "webfontloader": "^1.0.0"
