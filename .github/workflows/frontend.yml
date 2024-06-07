@@ -12,34 +12,22 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-
-      - name: Create cache directory
-        run: mkdir -p /tmp/.buildx-cache
-
-      - name: Cache Docker layers
-        uses: actions/cache@v2
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
+          node-version: 'lts/*'
+          cache: 'npm'
 
-      - name: Build and push Frontend Docker image
-        run: |
-          docker build --cache-from=type=local,src=/tmp/.buildx-cache --cache-to=type=local,dest=/tmp/.buildx-cache --tag frontend:latest -f ./frontend/frontend.dockerfile ./frontend
-          docker save frontend:latest | gzip > frontend_latest.tar.gz
-        shell: bash
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Load and run Frontend Docker image
-        run: |
-          docker load < frontend_latest.tar.gz
-          docker run -d -p 3000:3000 --name frontend frontend:latest
-        shell: bash
+      - name: Run linter
+        run: npm run lint
 
-      - name: Run tests for Frontend
-        run: docker exec frontend npm test
-        shell: bash
+      - name: Run tests
+        run: npm test
+
+      - name: Build project
+        run: npm run build
