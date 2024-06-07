@@ -13,7 +13,7 @@ export const createServer = async app => {
 
   try {
     if (isHttps) {
-      const certificate = await generateCertificate();
+      const certificate = await generateCertificate('./config/certificates');
       const options = {
         key: certificate.key,
         cert: certificate.cert,

@@ -1,6 +1,5 @@
 import cors from 'cors';
-
-const config = require('config/app.config');
+import config from 'config/app.config';
 
 export default app => {
   //setting CSP

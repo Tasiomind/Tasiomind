@@ -1,14 +1,8 @@
-const {
-  AuthenticationError,
-  ForbiddenError,
-  UserInputError,
-} = require("@apollo/server/plugin/drainHttpServer");
-const TokenError = require("../../utils/errors/TokenError");
-const analytics = require("../../services/analytics");
-const log = require("../../utils/logger");
-const {
-  SOMETHING_WENT_WRONG,
-} = require("../../helpers/constants/responseCodes");
+import { AuthenticationError, ForbiddenError, UserInputError } from 'apollo-server-core';
+import TokenError from '~utils/errors/TokenError';
+import analytics from '~services/analytics';
+import log from '~utils/logger';
+import { SOMETHING_WENT_WRONG } from '~helpers/constants/responseCodes';
 
 // eslint-disable-next-line no-unused-vars
 const errorHandler = (err, req, res, next) => {
@@ -37,4 +31,4 @@ const errorHandler = (err, req, res, next) => {
     .end();
 };
 
-module.exports = errorHandler;
+export default errorHandler;

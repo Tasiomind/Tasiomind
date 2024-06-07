@@ -1,0 +1,115 @@
+import multer from 'multer';
+import numeral from 'numeral';
+import multerS3 from 'multer-s3';
+import { nanoid } from 'nanoid';
+import { UserInputError } from 'apollo-server-core';
+import { s3 } from '~services/aws';
+import {
+  IMAGE_TOO_LARGE,
+  NOTHING_TO_UPLOAD,
+  UNSUPPORTED_FILE_TYPE,
+  USER_PROFILE_PICTURE_UPLOADED,
+} from '~helpers/constants/responseCodes';
+import {
+  AVATARS_FOLDER,
+  SUPPORTED_PROFILE_PICTURE_FILE_TYPES,
+  PROFILE_PICTURE_MAX_FILE_SIZE,
+  BYTES,
+} from '~helpers/constants/files';
+import { getImageUrl } from '~helpers/links';
+
+const { AWS_S3_BUCKET } = process.env;
+
+const uploadAvatar = async (req, res) => {
+  const upload = multer({
+    storage: multerS3({
+      s3,
+      bucket: AWS_S3_BUCKET,
+      contentType: multerS3.AUTO_CONTENT_TYPE,
+      metadata(_req, file, cb) {
+        cb(null, {
+          fieldName: file.fieldname,
+          originalName: file.originalname,
+        });
+      },
+      key(_req, _file, cb) {
+        cb(null, `${AVATARS_FOLDER}/${nanoid()}`);
+      },
+    }),
+    limits: {
+      fileSize: PROFILE_PICTURE_MAX_FILE_SIZE,
+    },
+    fileFilter(_req, file, cb) {
+      if (!SUPPORTED_PROFILE_PICTURE_FILE_TYPES.includes(file.mimetype)) {
+        cb(new UserInputError(UNSUPPORTED_FILE_TYPE));
+      } else {
+        cb(null, true);
+      }
+    },
+  }).single('avatar');
+
+  upload(req, res, async err => {
+    const {
+      context: { storage, currentUser, db },
+      t,
+      file,
+    } = req;
+
+    try {
+      if (err instanceof multer.MulterError) {
+        if (err.code === 'LIMIT_FILE_SIZE') {
+          throw new UserInputError(
+            t(IMAGE_TOO_LARGE, {
+              size: numeral(PROFILE_PICTURE_MAX_FILE_SIZE).format(BYTES),
+            }),
+          );
+        }
+        throw err;
+      } else if (err) {
+        throw err;
+      } else {
+        if (!file) {
+          throw new UserInputError(NOTHING_TO_UPLOAD);
+        }
+
+        const { mimetype: mimeType, originalname: name, size, bucket, key } = file;
+
+        const input = {
+          key,
+          bucket,
+          name,
+          mimeType,
+          size,
+        };
+
+        const avatar = await db.sequelize.transaction(async transaction => {
+          const currentAvatar = await currentUser.getAvatar({ transaction });
+          if (currentAvatar) {
+            await currentAvatar.destroy({ transaction });
+          }
+          return currentUser.createAvatar(input, { transaction });
+        });
+
+        res.send({
+          code: USER_PROFILE_PICTURE_UPLOADED,
+          success: true,
+          message: t(USER_PROFILE_PICTURE_UPLOADED),
+          user: {
+            id: currentUser.id,
+            avatar: getImageUrl(avatar.toJSON()),
+          },
+        });
+      }
+    } catch (error) {
+      if (file) {
+        storage.remove(file);
+      }
+      res.status(400).send({
+        success: false,
+        message: t(error.message),
+      });
+    }
+  });
+};
+
+export default uploadAvatar;
