@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.10.4",
-    "@mdi/font": "7.0.96",
+    "@mdi/font": "7.4.47",
     "@mdi/js": "^7.1.96",
     "@vue/apollo-composable": "^4.0.2",
     "@vuepic/vue-datepicker": "^8.5.0",
