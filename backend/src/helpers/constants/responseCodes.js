@@ -44,6 +44,8 @@ export const TOKEN_INVALID_ERROR = 'TokenInvalidError';
 export const TOKEN_NOT_BEFORE_ERROR = 'TokenNotBeforeError';
 
 // resolvers
+export const INCORRECT_EMAIL = 'IncorrectEmail';
+export const INCORRECT_PASSWORD = 'IncorrectPassword';
 export const INCORRECT_EMAIL_OR_PASSWORD = 'IncorrectEmailOrPassword';
 export const INCORRECT_USERNAME_OR_PASSWORD = 'IncorrectUsernameOrPassword';
 export const SIGNUP_FAILED = 'SignUpFailed';

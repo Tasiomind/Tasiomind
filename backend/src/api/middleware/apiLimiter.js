@@ -7,9 +7,13 @@ const apiLimiter = rateLimit({
   max: 2000,
   standardHeaders: true,
   legacyHeaders: false,
+  message: 'Too many requests from this IP, please try again after 15 minutes.',
   store: new RedisStore({
     sendCommand: (...args) => client.call(...args),
   }),
+  keyGenerator: (req, res) => {
+    return req.ip;
+  },
   delayMs: 0,
 });
 

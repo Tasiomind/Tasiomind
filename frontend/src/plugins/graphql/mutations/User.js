@@ -8,6 +8,25 @@ export const LoginWithEmail = gql`
       message
       accessToken
       refreshToken
+      user {
+        firstName
+        lastName
+        fullName
+        username
+        socialAvatarURL
+        isOwner
+        isLocked
+        locale
+        timezone
+        emailVerified
+        phoneNumberVerified
+        createdAt
+        updatedAt
+        lastLogin
+        id
+        email
+        phoneNumber
+      }
     }
   }
 `;

@@ -10,6 +10,12 @@ import { encrypt } from '@/plugins/crypto.js';
 import { useI18n } from 'vue-i18n';
 import { useMutation } from '@vue/apollo-composable';
 import { RegisterWithEmail } from '@/plugins/graphql/mutations';
+import {
+  validateName,
+  validateUsername,
+  validateEmail,
+  validatePassword,
+} from '@/utils/validation';
 
 const { t } = useI18n();
 const registerForm = ref();
@@ -22,9 +28,52 @@ const theme = useTheme();
 const registerData = ref({});
 
 const errors = ref({
-  email: '',
-  password: '',
+  firstName: false,
+  lastName: false,
+  username: false,
+  email: false,
+  password: false,
 });
+
+const firstNameRules = [
+  v => {
+    const { isValid, message } = validateName(v, t);
+    errors.value.firstName = !isValid;
+    return isValid || t(message);
+  },
+];
+
+const lastNameRules = [
+  v => {
+    const { isValid, message } = validateName(v, t);
+    errors.value.lastName = !isValid;
+    return isValid || t(message);
+  },
+];
+
+const usernameRules = [
+  v => {
+    const { isValid, message } = validateUsername(v, t);
+    errors.value.username = !isValid;
+    return isValid || t(message);
+  },
+];
+
+const emailRules = [
+  v => {
+    const { isValid, message } = validateEmail(v, t);
+    errors.value.email = !isValid;
+    return isValid || t(message);
+  },
+];
+
+const passwordRules = [
+  v => {
+    const { isValid, message } = validatePassword(v, t);
+    errors.value.password = !isValid;
+    return isValid || t(message);
+  },
+];
 
 const { mutate, onDone, onError } = useMutation(RegisterWithEmail);
 
@@ -94,37 +143,48 @@ const register = () => {
                       <VTextField
                         v-model="registerData.firstName"
                         :label="t('name')"
-                        :rules="[v => !!v || t('nameIsRequired')]"
+                        :rules="firstNameRules"
                         class="mb-6 pr-4"
+                        required
                       />
                     </VCol>
                     <VCol md="6" cols="12">
                       <VTextField
                         v-model="registerData.lastName"
                         :label="t('lastname')"
-                        :rules="[v => !!v || t('lastnameIsRequired')]"
+                        :rules="lastNameRules"
                         class="mb-6"
+                        required
                       />
                     </VCol>
                     <VCol md="12" cols="12">
                       <VTextField
                         v-model="registerData.username"
                         :label="t('username')"
-                        :rules="[v => !!v || t('usernameIsRequired')]"
+                        :rules="usernameRules"
                         class="mb-6"
+                        required
                       />
 
                       <VTextField
                         v-model="registerData.email"
                         :label="t('email')"
-                        :rules="[v => !!v || t('emailIsRequired')]"
+                        :rules="emailRules"
                         :error-messages="errors.email"
                         class="mb-6"
+                        required
                       />
                     </VCol>
                   </VRow>
 
-                  <VBtn block color="primary" @click="isContentExpand = !isContentExpand">
+                  <VBtn
+                    block
+                    color="primary"
+                    :disabled="
+                      errors.firstName || errors.lastName || errors.username || errors.email
+                    "
+                    @click="isContentExpand = !isContentExpand"
+                  >
                     {{ t('$vuetify.stepper.next') }}
                   </VBtn>
                 </div>
@@ -156,15 +216,29 @@ const register = () => {
                     v-model="registerData.password"
                     :type="isPasswordVisible ? 'password' : 'text'"
                     :label="t('password')"
-                    :rules="[v => !!v || t('passwordIsRequired')]"
+                    :rules="passwordRules"
                     :append-inner-icon="
                       isPasswordVisible ? 'mdi-eye-off-outline' : 'mdi-eye-outline'
                     "
                     class="mb-6"
                     @click:append-inner="isPasswordVisible = !isPasswordVisible"
+                    required
                   />
 
-                  <VBtn block type="submit" color="primary"> register </VBtn>
+                  <VBtn
+                    block
+                    type="submit"
+                    color="primary"
+                    :disabled="
+                      errors.firstName ||
+                      errors.lastName ||
+                      errors.username ||
+                      errors.email ||
+                      errors.password
+                    "
+                  >
+                    register
+                  </VBtn>
                 </div>
               </VExpandTransition>
             </VForm>
@@ -194,5 +268,5 @@ const register = () => {
 </template>
 
 <style lang="scss">
-@use "@/styles/pages/auth.scss";
+@use '@/styles/pages/auth.scss';
 </style>

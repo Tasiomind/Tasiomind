@@ -56,6 +56,7 @@ type AuthMutationResponse implements Response {
   message: String!
   accessToken: JWT
   refreshToken: JWT
+  user: User
 }
 
 """

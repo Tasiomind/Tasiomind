@@ -8,15 +8,12 @@ type Query {
 }
 
 type Mutation {
-  updateCurrentUserFullname(input: UpdateFullnameInput!): UserMutationResponse!
-    @auth
+  updateCurrentUserFullname(input: UpdateFullnameInput!): UserMutationResponse! @auth
   updateCurrentUserUsername(username: String!): UserMutationResponse! @auth
   updateCurrentUserLocale(locale: Locale!): UserMutationResponse! @auth
-  updateCurrentUserPhoneNumber(phoneNumber: PhoneNumber): UserMutationResponse!
-    @auth
+  updateCurrentUserPhoneNumber(phoneNumber: PhoneNumber): UserMutationResponse! @auth
   updateCurrentUserTimeZone(timezone: TimeZone!): UserMutationResponse! @auth
-  updateCurrentUserPassword(input: UpdatePasswordInput!): UserMutationResponse!
-    @auth
+  updateCurrentUserPassword(input: UpdatePasswordInput!): UserMutationResponse! @auth
   verifyPhoneNumber(token: String!): UserMutationResponse! @auth
   removeCurrentUserAvatar: UserMutationResponse! @auth
 
@@ -33,17 +30,15 @@ type Mutation {
     @auth(rules: [{ allow: role, roles: ["admin"] }])
   changeUserTimeZone(input: ChangeUserTimeZoneInput!): UserMutationResponse!
     @auth(rules: [{ allow: role, roles: ["admin"] }])
-  changeUserPhoneNumber(
-    input: ChangeUserPhoneNumberInput!
-  ): UserMutationResponse! @auth(rules: [{ allow: role, roles: ["admin"] }])
+  changeUserPhoneNumber(input: ChangeUserPhoneNumberInput!): UserMutationResponse!
+    @auth(rules: [{ allow: role, roles: ["admin"] }])
   changeUserPassword(input: ChangeUserPasswordInput!): UserMutationResponse!
     @auth(rules: [{ allow: role, roles: ["admin"] }])
   blockUser(id: ID!, reason: NonEmptyString): UserMutationResponse!
     @auth(rules: [{ allow: role, roles: ["admin"] }])
   unblockUser(id: ID!, reason: NonEmptyString): UserMutationResponse!
     @auth(rules: [{ allow: role, roles: ["admin"] }])
-  removeUserAvatar(id: ID!): UserMutationResponse!
-    @auth(rules: [{ allow: role, roles: ["admin"] }])
+  removeUserAvatar(id: ID!): UserMutationResponse! @auth(rules: [{ allow: role, roles: ["admin"] }])
   deleteUser(id: ID!, reason: NonEmptyString): DeleteMutationResponse!
     @auth(rules: [{ allow: role, roles: ["admin"] }])
   assignRolesToUser(userId: ID!, roleIds: [ID!]!): UserMutationResponse!
@@ -58,8 +53,8 @@ type User {
   lastName: String!
   fullName: String!
   username: String
-  email: EmailAddress! @auth(rules: [{ allow: owner, identityClaim: "id" }])
-  phoneNumber: PhoneNumber @auth(rules: [{ allow: owner, identityClaim: "id" }])
+  email: EmailAddress!
+  phoneNumber: PhoneNumber
   avatar: Photo
   socialAvatarURL: URL
   isOwner: Boolean!
@@ -72,8 +67,7 @@ type User {
   roles: [Role]! @auth(rules: [{ allow: owner, identityClaim: "id" }])
   createdAt: DateTime!
   updatedAt: DateTime
-  passwordResetAt: DateTime
-    @auth(rules: [{ allow: owner, identityClaim: "id" }])
+  passwordResetAt: DateTime @auth(rules: [{ allow: owner, identityClaim: "id" }])
   lastLogin: DateTime
   status: AccountStatus! @auth(rules: [{ allow: owner, identityClaim: "id" }])
 }

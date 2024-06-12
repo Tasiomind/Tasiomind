@@ -5,6 +5,7 @@ export const appConfig = config({
   title: ref('Tasiomind'),
   theme: ref('light'),
   clientID: ref('f078d36a-b15a-4387-a0e3-726b7e48b777'),
+  iv: ref('4c9f0051424de04dc72074ad3506701b'),
   navigationMenu: ref('vertical'), // horizontal or vertical
   isBoxLayout: ref(false),
   isVerticalMenuMini: ref(true),

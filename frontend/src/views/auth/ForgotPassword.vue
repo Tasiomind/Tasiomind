@@ -8,6 +8,7 @@ import { useI18n } from 'vue-i18n';
 import { toast } from 'vue3-toastify';
 import { useMutation } from '@vue/apollo-composable';
 import { RequestPasswordReset } from '@/plugins/graphql/mutations';
+import { validateEmail } from '@/utils/validation';
 
 const { t } = useI18n();
 const forgetPasswordForm = ref();
@@ -15,11 +16,15 @@ const theme = useTheme();
 const email = ref('');
 const { mutate } = useMutation(RequestPasswordReset);
 
-const emailRules = [
-  v => !!v || 'Email is required',
-  v => /.+@.+\..+/.test(v) || 'Email must be valid',
-];
+const errors = ref({ email: false });
 
+const emailRules = [
+  v => {
+    const { isValid, message } = validateEmail(v, t);
+    errors.value.email = !isValid;
+    return isValid || t(message);
+  },
+];
 const sendResetLink = async () => {
   if (!forgetPasswordForm.value) {
     return;
@@ -71,7 +76,7 @@ const authBgThemeVariant = computed(() => {
             <VForm ref="forgetPasswordForm" @submit.prevent="sendResetLink">
               <VRow>
                 <VCol cols="12">
-                  <VTextField v-model="email" label="Email" :rules="emailRules" />
+                  <VTextField v-model="email" label="Email" :rules="emailRules" required />
                 </VCol>
 
                 <VCol cols="12">
@@ -110,5 +115,5 @@ const authBgThemeVariant = computed(() => {
 </template>
 
 <style lang="scss">
-@use "@/styles/pages/auth.scss";
+@use '@/styles/pages/auth.scss';
 </style>

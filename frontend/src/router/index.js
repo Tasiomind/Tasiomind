@@ -84,9 +84,9 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   try {
     const authStore = useAuthStore();
-    console.log('authStore', authStore.isAuthenticated());
-    const isAuthenticated = await isUserLoggedIn();
+    const isAuthenticated = await authStore.isAuthenticated();
     const requiredRoles = to.meta.requiredRoles;
+    console.log(to.meta.requiresAuth, isAuthenticated);
 
     if (to.meta.requiresAuth && !isAuthenticated) {
       return next('login');

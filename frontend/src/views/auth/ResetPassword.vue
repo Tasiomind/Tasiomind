@@ -9,6 +9,7 @@ import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import { useMutation } from '@vue/apollo-composable';
 import { ResetPassword } from '@/plugins/graphql/mutations';
+import { validatePassword } from '@/utils/validation';
 
 const route = useRoute();
 const router = useRouter();
@@ -19,14 +20,14 @@ const isPasswordVisible = ref(true);
 const theme = useTheme();
 const password = ref('');
 const token = ref(route.query.token);
+const errors = ref({ password: false });
 
 const passwordRules = [
-  v => !!v || t('Password is required'),
-  v => v.length >= 8 || t('Password must be at least 8 characters'),
-  v => /[A-Z]/.test(v) || t('Password must contain at least one uppercase letter'),
-  v => /[a-z]/.test(v) || t('Password must contain at least one lowercase letter'),
-  v => /[0-9]/.test(v) || t('Password must contain at least one number'),
-  v => /[@$!%*?&#]/.test(v) || t('Password must contain at least one special character'),
+  v => {
+    const { isValid, message } = validatePassword(v);
+    errors.value.password = !isValid;
+    return isValid || t(message);
+  },
 ];
 
 const { mutate } = useMutation(ResetPassword);
@@ -99,6 +100,7 @@ const authBgThemeVariant = computed(() => {
                     "
                     class="mb-6"
                     @click:append-inner="isPasswordVisible = !isPasswordVisible"
+                    required
                   />
                 </VCol>
 
@@ -138,5 +140,5 @@ const authBgThemeVariant = computed(() => {
 </template>
 
 <style lang="scss">
-@use "@/styles/pages/auth.scss";
+@use '@/styles/pages/auth.scss';
 </style>

@@ -1,12 +1,11 @@
 import { AuthenticationError } from 'apollo-server-core';
 import { INVALID_CLIENT_ID } from '~helpers/constants/responseCodes';
 
-const verifyClient = (req, res, next) => {
+export default (req, res, next) => {
   const {
     context: { clientId, clients },
   } = req;
 
-  console.error(context, 'clientId is missing in the request context');
   if (!clientId) {
     return next(new AuthenticationError('clientId is missing in the request context'));
   }
@@ -23,4 +22,3 @@ const verifyClient = (req, res, next) => {
 
   return next();
 };
-export default verifyClient;

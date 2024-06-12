@@ -1,13 +1,10 @@
 import fs from 'fs';
 import jwt, { NotBeforeError, TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
-import verifyGoogleToken from '~services/googleOAuth';
-import verifyFacebookToken from '~services/facebookOAuth';
 import {
   TOKEN_EXPIRED_ERROR,
   TOKEN_INVALID_ERROR,
   TOKEN_NOT_BEFORE_ERROR,
 } from '~helpers/constants/responseCodes';
-import { FACEBOOK_PROVIDER, GOOGLE_PROVIDER } from '~helpers/constants/auth';
 import TokenError from '../errors/TokenError';
 import config from 'config/app.config';
 
@@ -31,20 +28,4 @@ export const verify = (token, { clientId, ...options } = {}) => {
       throw e;
     }
   }
-};
-
-export const verifySocialToken = async ({ provider, token }) => {
-  let userInfo;
-  switch (provider) {
-    case GOOGLE_PROVIDER:
-      userInfo = await verifyGoogleToken(token);
-      break;
-    case FACEBOOK_PROVIDER:
-      userInfo = await verifyFacebookToken(token);
-      break;
-    default:
-      break;
-  }
-
-  return userInfo;
 };

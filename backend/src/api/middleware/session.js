@@ -1,7 +1,7 @@
 import session from 'express-session';
-import { uuidv4 } from '~utils/uuid';
+import { createSessionSecret } from '~utils/crypto';
 
-const SESSION_SECRET = uuidv4();
+const SESSION_SECRET = createSessionSecret();
 
 export default app => {
   // Sessions allow us to Contact data on visitors from request to request

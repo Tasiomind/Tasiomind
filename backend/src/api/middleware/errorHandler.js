@@ -5,7 +5,7 @@ import log from '~utils/logger';
 import { SOMETHING_WENT_WRONG } from '~helpers/constants/responseCodes';
 
 // eslint-disable-next-line no-unused-vars
-const errorHandler = (err, req, res, next) => {
+export default (err, req, res, next) => {
   analytics.flush();
   let statusCode;
   let { message } = err;
@@ -30,5 +30,3 @@ const errorHandler = (err, req, res, next) => {
     })
     .end();
 };
-
-export default errorHandler;

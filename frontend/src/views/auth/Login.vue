@@ -3,97 +3,102 @@ import authBgDark from '@/assets/pages/auth-bg-dark.svg';
 import authBgLight from '@/assets/pages/auth-bg-light.svg';
 import authLoginImg from '@/assets/pages/working-desk-with-laptop.png';
 import Logo from '@/components/Logo.vue';
-import { useRoute, useRouter } from 'vue-router';
-import { useTheme } from 'vuetify';
-import { toast } from 'vue3-toastify';
-import { useI18n } from 'vue-i18n';
-import { useAuthStore } from '@/stores/auth';
-// const { mutate, onDone, onError } = useMutation(LoginWithEmail);
 
+import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
+import { useTheme } from 'vuetify';
+import { useAuthStore } from '@/stores/auth';
+import { validateEmail, validatePassword } from '@/utils/validation';
+import { toast } from 'vue3-toastify';
+
+const router = useRouter();
 const { t } = useI18n();
-const loginForm = ref();
-const isPasswordVisible = ref(true);
-const isContentExpand = ref(true);
 const theme = useTheme();
 const authStore = useAuthStore();
-const loginData = ref({});
 
-const errors = ref({
+const loginData = ref({
   email: '',
   password: '',
 });
 
-const authBgThemeVariant = computed(() => {
-  return theme.current.value.dark ? authBgDark : authBgLight;
+const errors = ref({
+  email: {
+    value: false,
+    message: '',
+  },
+  password: {
+    value: false,
+    message: '',
+  },
 });
 
-const router = useRouter();
-const route = useRoute();
+const isPasswordVisible = ref(false);
+const isContentExpanded = ref(true);
+const submitDisabled = ref(true);
 
-const login = async () => {
-  if (!loginForm.value) {
-    console.error('Login-Formular nicht initialisiert');
-    return;
-  }
+const authBgThemeVariant = computed(() => (theme.current.value.dark ? authBgDark : authBgLight));
 
-  loginForm.value.validate().then(
-    async isValid => {
-      if (isValid) {
-        const { email, password } = loginData.value;
-
-        if (!email || !password) {
-          toast('Bitte füllen Sie alle Felder aus', {
-            autoClose: 5000,
-            type: 'error',
-            position: toast.POSITION.BOTTOM_RIGHT,
-          });
-          return;
-        }
-        await authStore.login(email, password);
-        // const { data } = await mutate({
-        //   email: email,
-        //   password: password,
-        // });
-        // if (data.loginWithEmail.success) {
-        //   toast(data.loginWithEmail.message, {
-        //     type: 'success',
-        //   });
-        //   localStorage.setItem('userData', JSON.stringify(response.data.user));
-        //   router.replace(route.query.to ? String(route.query.to) : '/');
-        // } else {
-        //   toast(data.loginWithEmail.message || 'Anmeldefehler', {
-        //     type: 'error',
-        //   });
-        // }
-      }
-    },
-    error => {
-      console.error('Fehler beim Validieren des Formulars:', error);
-    },
-  );
+const validateEmailRule = value => {
+  const { isValid, message } = validateEmail(value);
+  errors.value.email = {
+    value: !isValid,
+    message: t(message),
+  };
+  return isValid;
 };
 
-onMounted(async () => {
-  // const isAuthenticated = await isUserLoggedIn();
-  // if (isAuthenticated)
-  //   return router.replace(route.query.to ? String(route.query.to) : "/");
-});
+const validatePasswordRule = value => {
+  const { isValid, message } = validatePassword(value);
+  errors.value.password = {
+    value: !isValid,
+    message: t(message),
+  };
+  return isValid;
+};
+
+const login = async () => {
+  if (errors.value.email.value || errors.value.password.value) return;
+
+  const { email, password } = loginData.value;
+  const data = await authStore.login(email, password);
+
+  if (data.success) {
+    toast(t(data.message), { type: 'success' });
+    router.push({ name: 'home' });
+  } else {
+    handleLoginError(data);
+  }
+};
+
+const handleLoginError = ({ message }) => {
+  toast(message, { type: 'error' });
+
+  if (message === 'IncorrectPassword') {
+    errors.value.password = {
+      value: true,
+      message: 'Incorrect Password',
+    };
+  } else if (message === 'IncorrectEmail') {
+    errors.value.email = {
+      value: true,
+      message: 'Incorrect Email',
+    };
+  }
+};
 </script>
 
 <template>
   <div class="auth-wrapper">
-    <VCard max-width="900" :width="$vuetify.display.smAndDown ? '500' : 'auto'">
-      <VRow no-gutters>
-        <VCol md="6" cols="12" class="pa-sm-8 pa-4" style="block-size: 33rem">
+    <VCard max-width="1000" :width="$vuetify.display.smAndDown ? '700' : 'auto'">
+      <VRow class="h-[40rem]" no-gutters>
+        <VCol md="6" cols="12" class="pa-sm-9 pa-4" style="block-size: 33rem">
           <VCardText class="d-flex align-center gap-2 pt-0 pb-1 text-primary">
             <Logo />
             <h4 class="text-h4 text-primary">{{ t('appName') }}</h4>
           </VCardText>
-
           <VCardItem>
-            <VCardTitle>{{ t('Login') }}</VCardTitle>
+            <VCardTitle class="text-3xl font-bold underline">{{ t('Login') }}</VCardTitle>
             <VCardSubtitle>{{ t('LoginInfo') }}</VCardSubtitle>
-
             <template #append>
               <RouterLink
                 :to="{ name: 'register' }"
@@ -103,7 +108,6 @@ onMounted(async () => {
               </RouterLink>
             </template>
           </VCardItem>
-
           <VCardText>
             <VAlert color="info" variant="tonal" class="mb-6">
               <strong>DEMO</strong>
@@ -114,65 +118,41 @@ onMounted(async () => {
                 <strong>{{ t('password') }}:</strong> <span>admin</span>
               </p>
             </VAlert>
-
             <VForm ref="loginForm" @submit.prevent="login">
               <VExpandTransition>
-                <div v-show="isContentExpand">
+                <div v-show="isContentExpanded">
                   <VTextField
                     v-model="loginData.email"
-                    label="Email or username"
-                    :rules="[v => !!v || t('EmailIsRequired')]"
+                    label="Email"
+                    :rules="[validateEmailRule]"
                     class="mb-6"
+                    :error-messages="errors.email.message"
+                    required
                   />
-
-                  <VBtn block color="primary" @click="isContentExpand = !isContentExpand">
-                    {{ t('$vuetify.stepper.next') }}
-                  </VBtn>
-                </div>
-              </VExpandTransition>
-
-              <VExpandTransition>
-                <div v-show="!isContentExpand">
-                  <div
-                    class="d-flex align-center border rounded py-1 px-2 mb-6"
-                    :style="
-                      !loginData.email ? 'border-color:rgb(var(--v-theme-error)) !important' : ''
-                    "
-                  >
-                    <span class="text-caption">{{ loginData.email }}</span>
-
-                    <VSpacer />
-
-                    <VBtn
-                      size="small"
-                      color="primary"
-                      variant="text"
-                      @click="isContentExpand = !isContentExpand"
-                    >
-                      {{ t('change') }}
-                    </VBtn>
-                  </div>
-
                   <VTextField
                     v-model="loginData.password"
-                    :type="isPasswordVisible ? 'password' : 'text'"
+                    :type="isPasswordVisible ? 'text' : 'password'"
                     :label="t('password')"
-                    :rules="[v => !!v || t('passwordIsRequired')]"
+                    :rules="[validatePasswordRule]"
                     :append-inner-icon="
                       isPasswordVisible ? 'mdi-eye-off-outline' : 'mdi-eye-outline'
                     "
-                    :error-messages="errors.email"
                     class="mb-6"
+                    :error-messages="errors.password.message"
                     @click:append-inner="isPasswordVisible = !isPasswordVisible"
+                    required
                   />
-
                   <div class="text-center mb-6">
                     <RouterLink :to="{ name: 'forgot-password' }">
                       {{ t('Forgot Password') }}
                     </RouterLink>
                   </div>
-
-                  <VBtn block type="submit" color="primary">
+                  <VBtn
+                    block
+                    type="submit"
+                    color="primary"
+                    :disabled="errors.email.value || errors.password.value"
+                  >
                     {{ t('Login') }}
                   </VBtn>
                 </div>
@@ -180,16 +160,14 @@ onMounted(async () => {
             </VForm>
           </VCardText>
         </VCol>
-
         <VCol
           cols="6"
           class="pa-8 text-center border-s d-none d-md-block"
-          :style="`background-image:url(${authBgThemeVariant});`"
+          :style="`background-image:url(${authBgThemeVariant.value});`"
         >
           <div class="d-flex align-center justify-center">
             <img width="280" :src="authLoginImg" />
           </div>
-
           <h6 class="text-body-1 font-weight-semibold mb-3">
             {{ t('RegisterBody1') }}
           </h6>
@@ -209,5 +187,5 @@ onMounted(async () => {
 </template>
 
 <style lang="scss">
-@use "@/styles/pages/auth.scss";
+@use '@/styles/pages/auth.scss';
 </style>

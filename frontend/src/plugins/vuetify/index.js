@@ -1,6 +1,6 @@
 import vueI18n from '@/plugins/i18n';
 import vuetify from '@/plugins/vuetify/vuetify';
-import { createPinia, defineStore } from 'pinia';
+import { createPinia } from 'pinia';
 import Vue3Toastify from 'vue3-toastify';
 import router from '@/router';
 
@@ -25,10 +25,5 @@ const toastifyOptions = {
 
 // Register plugins function
 export const registerPlugins = app => {
-  app
-    .use(vuetify)
-    .use(router)
-    .use(vueI18n)
-    .use(Vue3Toastify, toastifyOptions)
-    .use(pinia);
+  app.use(vuetify).use(router).use(vueI18n).use(Vue3Toastify, toastifyOptions).use(pinia);
 };

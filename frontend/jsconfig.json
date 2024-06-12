@@ -30,8 +30,24 @@
         "appConfig.js"
       ],
       "@axios": [
-        "src/plugins/axios.js"
+        "src/plugins/API/axios.js"
       ],
+      "@auth": [
+        "src/store/modules/auth.js"
+      ],
+      "@query": [
+        "src/plugins/graphql/queries/"
+      ],
+      "@mutation": [
+        "src/plugins/graphql/mutations/"
+      ],
+      "@components/*": [
+        "src/components/*"
+      ],
+      "@config": [
+        "src/config.js"
+      ],
+
     },
   },
   "include": [

@@ -6,6 +6,8 @@ import { DefaultApolloClient, provideApolloClient } from '@vue/apollo-composable
 // styles
 import '@/styles/index.scss';
 import '@/styles/user-custom/style.scss';
+import '@/styles/tailwind/index.css';
+import '@/styles/tailwind/loader.css';
 
 // Plugins
 import 'vue3-toastify/dist/index.css';

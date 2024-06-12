@@ -1,9 +1,8 @@
-import { ApolloClient, HttpLink } from '@apollo/client/core';
-import { InMemoryCache } from '@apollo/client/cache';
+import { ApolloClient, HttpLink, InMemoryCache } from '@apollo/client/core';
 import { setContext } from '@apollo/client/link/context';
 import { appConfig } from '@appConfig';
+import { encryptLocalIv } from '@/plugins/crypto';
 
-// import { split, from } from '@apollo/client/link';
 // import { createUploadLink } from 'apollo-upload-client';
 // import { SubscriptionClient } from 'subscriptions-transport-ws';
 // import MessageTypes from 'subscriptions-transport-ws/dist/message-types';
@@ -12,20 +11,22 @@ import { appConfig } from '@appConfig';
 // import { createPersistedQueryLink } from 'apollo-link-persisted-queries';
 // import { withClientState } from 'apollo-link-state';
 
+const clientID = encryptLocalIv('f078d36a-b15a-4387-a0e3-726b7e48b777');
+
 // Create the apollo client
 export const createApolloClient = ({
   // Client ID if using multiple Clients
-  clientId = appConfig.clientID.value,
+  clientId = clientID,
   // URL to the HTTP API
   httpEndpoint,
   // Url to the Websocket API
   wsEndpoint = null,
   // Token used in localstorage
-  tokenName = 'apollo-token',
+  tokenName = 'authToken',
   // Enable this if you use Query persisting with Apollo Engine
   persisting = false,
   // Is currently Server-Side Rendering or not
-  ssr = false,
+  ssr = true,
   // Only use Websocket for all requests (including queries and mutations)
   websocketsOnly = false,
   // Custom starting link.
@@ -38,7 +39,9 @@ export const createApolloClient = ({
   // Disable it if you want to replace it with a terminating link using `link` option.
   defaultHttpLink = true,
   // Options for the default HttpLink
-  httpLinkOptions = {},
+  httpLinkOptions = {
+    credentials: 'same-origin',
+  },
   // Custom Apollo cache implementation (default is apollo-cache-inmemory)
   cache = null,
   // Options for the default cache
@@ -83,9 +86,11 @@ export const createApolloClient = ({
 
       return {
         headers: {
-          client_id: 'f078d36a-b15a-4387-a0e3-726b7e48b777',
+          'client_id': clientID,
           ...headers,
           ...authorizationHeader,
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'application/json',
         },
       };
     });
@@ -148,17 +153,6 @@ export const createApolloClient = ({
         );
       }
     }
-  }
-
-  if (clientState) {
-    console.warn(
-      'clientState is deprecated, see https://vue-cli-plugin-apollo.netlify.com/guide/client-state.html',
-    );
-    stateLink = withClientState({
-      cache,
-      ...clientState,
-    });
-    link = from([stateLink, link]);
   }
 
   const apolloClient = new ApolloClient({

@@ -1,10 +1,15 @@
-import { GraphQLError } from 'graphql';
+import { ForbiddenError } from 'apollo-server-core';
 import analytics from '~services/analytics';
 import dayjs from '~utils/dayjs';
 import QueryError from '~utils/errors/QueryError';
 import { Fail, Success } from '~helpers/response';
 import emailTemplates from '~helpers/emailTemplates';
-import { INCORRECT_EMAIL_OR_PASSWORD, WELCOME_BACK } from '~helpers/constants/responseCodes';
+import {
+  INCORRECT_EMAIL,
+  INCORRECT_PASSWORD,
+  INCORRECT_EMAIL_OR_PASSWORD,
+  WELCOME_BACK,
+} from '~helpers/constants/responseCodes';
 import { FAILED_LOGIN_ATTEMPT_KEY_PREFIX, MAX_LOGIN_ATTEMPTS } from '~helpers/constants/auth';
 import { ACCOUNT_STATUS } from '~helpers/constants/models';
 
@@ -16,12 +21,13 @@ export default {
       { dataSources, jwt, t, cache, mailer, locale, clientId },
     ) {
       try {
-        console.log('email: ', input.email + '\n' + 'password: ', input.password);
         const user = await dataSources.users.findOne({
           where: {
             email: input.email,
           },
         });
+
+        if (!user) throw new QueryError(INCORRECT_EMAIL);
 
         const granted = await user?.checkPassword(input.password);
 
@@ -55,12 +61,10 @@ export default {
           }
         }
 
-        if (!granted) {
-          throw new QueryError(INCORRECT_EMAIL_OR_PASSWORD);
-        }
+        if (!granted) throw new QueryError(INCORRECT_PASSWORD);
 
         if ([ACCOUNT_STATUS.BLOCKED, ACCOUNT_STATUS.LOCKED].includes(user.status)) {
-          throw new GraphQLError(user.status);
+          throw new ForbiddenError(user.status);
         }
 
         await cache.remove(attemptCountKey);
@@ -90,6 +94,7 @@ export default {
           code: WELCOME_BACK,
           accessToken,
           refreshToken,
+          user: user,
         });
       } catch (e) {
         if (e instanceof QueryError) {

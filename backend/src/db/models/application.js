@@ -1,6 +1,7 @@
 import { uuidv4 } from '~utils/uuid';
-
 import { Model } from 'sequelize';
+import Sentry from '~services/sentry';
+
 import {
   APPLICATION_DESCRIPTION_EMPTY_ERROR,
   APPLICATION_DESCRIPTION_LEN_ERROR,
@@ -15,25 +16,32 @@ export default (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    // static associate(models) {
-    // define association here
-    // }
+    // static associate(models) {}
   }
   Application.init(
     {
       id: {
         type: DataTypes.UUID,
         primaryKey: true,
-        defaultValue: DataTypes.UUIDV4,
+        defaultValue: uuidv4,
         validate: {
-          isUUID: 4,
+          isUUID: {
+            args: 4,
+            msg: 'ID must be a valid UUID',
+          },
         },
       },
       clientID: {
         type: DataTypes.STRING,
         allowNull: false,
-        defaultValue() {
-          return nanoid();
+        defaultValue: uuidv4,
+        validate: {
+          notNull: {
+            msg: 'Client ID cannot be null',
+          },
+          notEmpty: {
+            msg: 'Client ID cannot be empty',
+          },
         },
       },
       name: {
@@ -68,7 +76,22 @@ export default (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: 'Application',
+      hooks: {
+        beforeValidate: (application, options) => {
+          try {
+            Sentry.addBreadcrumb({
+              category: 'application',
+              message: 'Validating application data',
+              level: 'info',
+            });
+          } catch (err) {
+            console.error('Error in beforeValidate hook:', err);
+            Sentry.captureException(err);
+          }
+        },
+      },
     },
   );
+
   return Application;
 };

@@ -1,13 +1,15 @@
-export const saveUserDataToLocalStorage = (userData) => {
-  localStorage.setItem("userData", JSON.stringify(userData));
+export const saveUserDataToLocalStorage = userData => {
+  localStorage.setItem('userData', JSON.stringify(userData));
+  localStorage.setItem('accessToken', userData.token); // Token speichern
 };
 
 export const removeUserDataFromLocalStorage = () => {
-  localStorage.removeItem("userData");
+  localStorage.removeItem('userData');
+  localStorage.removeItem('accessToken');
 };
 
 export const getUserDataFromLocalStorage = () => {
-  const storedUserData = localStorage.getItem("userData");
+  const storedUserData = localStorage.getItem('userData');
   return storedUserData ? JSON.parse(storedUserData) : null;
 };
 
@@ -27,10 +29,10 @@ export const isUserLoggedIn = async () => {
   // }
 };
 
-export const hasAnyRole = async (routeRoles) => {
+export const hasAnyRole = async routeRoles => {
   const userData = getUserDataFromLocalStorage();
   const userRoles = userData ? userData.role : [];
-  if (userRoles?.includes("admin")) return true;
+  if (userRoles?.includes('admin')) return true;
 
-  return routeRoles?.some((role) => userRoles.includes(role));
+  return routeRoles?.some(role => userRoles.includes(role));
 };
