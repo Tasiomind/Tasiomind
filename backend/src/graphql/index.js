@@ -2,7 +2,8 @@ import { createServer } from '~utils/http/http';
 import os from 'node:os';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
-import { ApolloServerPluginDrainHttpServer, AuthenticationError } from 'apollo-server-core';
+import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
+import { GraphQLError } from 'graphql';
 
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { INVALID_CLIENT_ID } from '~helpers/constants/responseCodes';
@@ -49,16 +50,14 @@ export const createApolloServer = async (app, httpServer) => {
     '/graphql',
     expressMiddleware(server, {
       context: async ({ req: { t, context } }) => {
-        console.log(context.clientId)
         if (!context.clients.includes(context.clientId)) {
-          throw new AuthenticationError(INVALID_CLIENT_ID);
+          throw new GraphQLError(INVALID_CLIENT_ID);
         }
         return { t, ...context, dataSources };
       },
     }),
   );
   
-
   return server;
 };
 

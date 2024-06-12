@@ -48,7 +48,7 @@ const handleFailedLoginAttempts = async (dataSources, cache, mailer, user, email
     throw new QueryError(`Account locked due to multiple failed login attempts. Try again in 3 minutes.`);
   }
 
-  throw new QueryError(`${INCORRECT_PASSWORD} ${attempts}`);
+  throw new QueryError(INCORRECT_PASSWORD);
 };
 
 const blockUser = async (dataSources, mailer, user, locale) => {
