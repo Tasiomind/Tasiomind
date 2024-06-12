@@ -34,4 +34,5 @@ export const AUTH_STRATEGIES = [
 ];
 
 export const MAX_LOGIN_ATTEMPTS = 5;
+export const MAX_LOCK_ATTEMPTS = 3;
 export const LOGIN_ATTEMPTS_INTERVAL = "3 minutes";
