@@ -6,7 +6,9 @@ import bodyParser from './bodyParser';
 import contextMiddleware from './context';
 import helmet from './helmet';
 import session from './session';
-import cors from './cors';
+import cors from 'cors';
+import config from 'config/app.config';
+import cookieParser from 'cookie-parser';
 
 export default async (express, app) => {
   app.set('trust proxy', 'loopback');
@@ -14,11 +16,12 @@ export default async (express, app) => {
   bodyParser(express, app);
   helmet(app);
   session(app);
-  cors(app);
-  app.use(Sentry.Handlers.requestHandler());
-  app.use(Sentry.Handlers.errorHandler());
+  app.use(cookieParser());
+  app.use(cors(config.cors));
+  // app.use(Sentry.Handlers.requestHandler());
+  // app.use(Sentry.Handlers.errorHandler());
   app.use(apiLimiter);
-  app.use(errorHandler);
+  // app.use(errorHandler);
   app.use(contextMiddleware);
   app.use(verifyClient);
 };

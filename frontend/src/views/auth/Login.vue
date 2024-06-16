@@ -7,7 +7,7 @@ import Logo from '@/components/Logo.vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useTheme } from 'vuetify';
-import { useAuthStore } from '@/stores/auth';
+import { useAuthStore } from '@/stores/auth.store';
 import { validateEmail, validatePassword } from '@/utils/validation';
 import { toast } from 'vue3-toastify';
 
@@ -24,11 +24,11 @@ const loginData = ref({
 const errors = ref({
   email: {
     value: false,
-    message: '',
+    message: null,
   },
   password: {
     value: false,
-    message: '',
+    message: null,
   },
 });
 
@@ -127,7 +127,6 @@ const handleLoginError = ({ message }) => {
                     :rules="[validateEmailRule]"
                     class="mb-6"
                     :error-messages="errors.email.message"
-                    required
                   />
                   <VTextField
                     v-model="loginData.password"
@@ -140,7 +139,6 @@ const handleLoginError = ({ message }) => {
                     class="mb-6"
                     :error-messages="errors.password.message"
                     @click:append-inner="isPasswordVisible = !isPasswordVisible"
-                    required
                   />
                   <div class="text-center mb-6">
                     <RouterLink :to="{ name: 'forgot-password' }">

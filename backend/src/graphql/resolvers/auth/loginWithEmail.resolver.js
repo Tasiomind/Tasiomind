@@ -1,4 +1,3 @@
-import { ForbiddenError } from 'apollo-server-core';
 import analytics from '~services/analytics';
 import dayjs from '~utils/dayjs';
 import QueryError from '~utils/errors/QueryError';
@@ -10,18 +9,23 @@ import {
   USER_BLOCKED,
   WELCOME_BACK,
 } from '~helpers/constants/responseCodes';
-import { FAILED_LOGIN_ATTEMPT_KEY_PREFIX, MAX_LOGIN_ATTEMPTS, MAX_LOCK_ATTEMPTS } from '~helpers/constants/auth';
+import {
+  FAILED_LOGIN_ATTEMPT_KEY_PREFIX,
+  MAX_LOGIN_ATTEMPTS,
+  MAX_LOCK_ATTEMPTS,
+} from '~helpers/constants/auth';
 import { ACCOUNT_STATUS } from '~helpers/constants/models';
+import { setEncryptedCookie } from '~utils/cookieManager';
 
 const findUserByEmail = async (dataSources, email) => {
   return await dataSources.users.findOne({ where: { email } });
 };
 
-const checkIfBlocked = (user) => {
+const checkIfBlocked = user => {
   if (user.status === ACCOUNT_STATUS.BLOCKED) throw new QueryError(USER_BLOCKED);
 };
 
-const checkIfLocked = (user) => {
+const checkIfLocked = user => {
   const lockedDuration = 3 * 60 * 1000; // 3 minutes
   const lockedUntil = dayjs(user.updatedAt).add(lockedDuration, 'ms');
   if (user.status === ACCOUNT_STATUS.LOCKED && dayjs().isBefore(lockedUntil)) {
@@ -45,7 +49,9 @@ const handleFailedLoginAttempts = async (dataSources, cache, mailer, user, email
     }
 
     await lockUser(dataSources, mailer, user, locale);
-    throw new QueryError(`Account locked due to multiple failed login attempts. Try again in 3 minutes.`);
+    throw new QueryError(
+      `Account locked due to multiple failed login attempts. Try again in 3 minutes.`,
+    );
   }
 
   throw new QueryError(INCORRECT_PASSWORD);
@@ -94,7 +100,7 @@ const handleSuccessfulLogin = async (dataSources, jwt, cache, analytics, user, c
 
   await dataSources.users.update(id, {
     lastLogin: dayjs.utc().toDate(),
-    status: ACCOUNT_STATUS.ACTIVE, 
+    status: ACCOUNT_STATUS.ACTIVE,
   });
 
   const { accessToken, refreshToken, sid, exp } = await jwt.getAuthTokens(id, { clientId });
@@ -109,12 +115,17 @@ const handleSuccessfulLogin = async (dataSources, jwt, cache, analytics, user, c
   return { firstName, accessToken, refreshToken, user };
 };
 
+const setTokenCookies = (res, accessToken, refreshToken) => {
+  setEncryptedCookie(res, 'accessToken', accessToken);
+  setEncryptedCookie(res, 'refreshToken', refreshToken);
+};
+
 export default {
   Mutation: {
     async loginWithEmail(
       _parent,
       { input },
-      { dataSources, jwt, t, cache, mailer, locale, clientId },
+      { dataSources, jwt, t, cache, mailer, locale, clientId, res },
     ) {
       try {
         const user = await findUserByEmail(dataSources, input.email);
@@ -129,17 +140,20 @@ export default {
         }
 
         await cache.remove(`${FAILED_LOGIN_ATTEMPT_KEY_PREFIX}:${input.email}`);
-        await cache.remove(`${FAILED_LOGIN_ATTEMPT_KEY_PREFIX}:lock:${input.email}`); 
+        await cache.remove(`${FAILED_LOGIN_ATTEMPT_KEY_PREFIX}:lock:${input.email}`);
 
-        const { firstName, accessToken, refreshToken, user: updatedUser } = await handleSuccessfulLogin(
-          dataSources, jwt, cache, analytics, user, clientId
-        );
+        const {
+          firstName,
+          accessToken,
+          refreshToken,
+          user: updatedUser,
+        } = await handleSuccessfulLogin(dataSources, jwt, cache, analytics, user, clientId);
+
+        setTokenCookies(res, accessToken, refreshToken);
 
         return Success({
           message: t(WELCOME_BACK, { firstName }),
           code: WELCOME_BACK,
-          accessToken,
-          refreshToken,
           user: updatedUser,
         });
       } catch (e) {

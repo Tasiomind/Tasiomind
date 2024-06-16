@@ -16,9 +16,7 @@ import { registerPlugins } from '@/plugins/vuetify/index';
 // Apollo
 import { createApolloClient } from '@/plugins/apollo';
 
-const { apolloClient } = createApolloClient({
-  httpEndpoint: '/graphql',
-});
+const { apolloClient } = createApolloClient({});
 
 const app = createApp({
   setup() {

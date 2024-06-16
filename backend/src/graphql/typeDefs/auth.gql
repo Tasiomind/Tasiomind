@@ -46,16 +46,12 @@ type AuthFormMutationResponse implements Response & FormErrors {
   success: Boolean!
   message: String!
   errors: [FieldError!]
-  accessToken: JWT
-  refreshToken: JWT
 }
 
 type AuthMutationResponse implements Response {
   code: ID!
   success: Boolean!
   message: String!
-  accessToken: JWT
-  refreshToken: JWT
   user: User
 }
 

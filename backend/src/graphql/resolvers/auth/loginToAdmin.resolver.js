@@ -1,26 +1,23 @@
-import { GraphQLError } from "graphql";
-import dayjs from "~utils/dayjs";
-import analytics from "~services/analytics";
-import QueryError from "~utils/errors/QueryError";
-import emailTemplates from "~helpers/emailTemplates";
-import { Fail, Success } from "~helpers/response";
+import { GraphQLError } from 'graphql';
+import dayjs from '~utils/dayjs';
+import analytics from '~services/analytics';
+import QueryError from '~utils/errors/QueryError';
+import emailTemplates from '~helpers/emailTemplates';
+import { Fail, Success } from '~helpers/response';
 import {
   EMAIL_NOT_VERIFIED,
   INCORRECT_USERNAME_OR_PASSWORD,
   WELCOME_BACK,
-} from "~helpers/constants/responseCodes";
-import {
-  FAILED_LOGIN_ATTEMPT_KEY_PREFIX,
-  MAX_LOGIN_ATTEMPTS,
-} from "~helpers/constants/auth";
-import { ACCOUNT_STATUS, ROLES_ALIAS } from "~helpers/constants/models";
+} from '~helpers/constants/responseCodes';
+import { FAILED_LOGIN_ATTEMPT_KEY_PREFIX, MAX_LOGIN_ATTEMPTS } from '~helpers/constants/auth';
+import { ACCOUNT_STATUS, ROLES_ALIAS } from '~helpers/constants/models';
 
 export default {
   Mutation: {
     async loginToAdmin(
       _parent,
       { input },
-      { dataSources, jwt, t, cache, mailer, locale, clientId }
+      { dataSources, jwt, t, cache, mailer, locale, clientId },
     ) {
       try {
         const user = await dataSources.users.findOne({
@@ -31,7 +28,7 @@ export default {
             {
               association: ROLES_ALIAS,
               where: {
-                name: ["root", "admin"],
+                name: ['root', 'admin'],
               },
             },
           ],
@@ -67,9 +64,7 @@ export default {
           throw new QueryError(INCORRECT_USERNAME_OR_PASSWORD);
         }
 
-        if (
-          [ACCOUNT_STATUS.BLOCKED, ACCOUNT_STATUS.LOCKED].includes(user.status)
-        ) {
+        if ([ACCOUNT_STATUS.BLOCKED, ACCOUNT_STATUS.LOCKED].includes(user.status)) {
           throw new GraphQLError(user.status);
         }
 
@@ -81,25 +76,21 @@ export default {
           lastLogin: dayjs.utc().toDate(),
         });
 
-        const { accessToken, refreshToken, sid, exp } = await jwt.getAuthTokens(
-          id,
-          {
-            clientId,
-          }
-        );
+        const { accessToken, refreshToken, sid, exp } = await jwt.getAuthTokens(id, {
+          clientId,
+        });
 
         await cache.set(`${clientId}:${id}`, sid, exp);
 
         analytics.track({
           userId: id,
-          event: "Logged In Admin",
+          event: 'Logged In Admin',
         });
+        //TODO! res.cookie refreshToken
 
         return Success({
           message: t(WELCOME_BACK, { firstName }),
           code: WELCOME_BACK,
-          accessToken,
-          refreshToken,
         });
       } catch (e) {
         if (e instanceof QueryError) {

@@ -49,15 +49,16 @@ export const createApolloServer = async (app, httpServer) => {
   app.use(
     '/graphql',
     expressMiddleware(server, {
-      context: async ({ req: { t, context } }) => {
+      context: async ({ req, res }) => {
+        const { t, context } = req;
         if (!context.clients.includes(context.clientId)) {
           throw new GraphQLError(INVALID_CLIENT_ID);
         }
-        return { t, ...context, dataSources };
+        return { t, ...context, dataSources, res };
       },
     }),
   );
-  
+
   return server;
 };
 

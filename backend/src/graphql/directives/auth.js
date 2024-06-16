@@ -1,6 +1,8 @@
 import { mapSchema, getDirective, MapperKind } from '@graphql-tools/utils';
-import { AuthenticationError, ForbiddenError } from 'apollo-server-core';
-import { defaultFieldResolver } from 'graphql';
+import { AuthenticationError, ForbiddenError } from '@apollo/server';
+import { GraphQLError, defaultFieldResolver } from 'graphql';
+import { Fail, Success } from '~helpers/response';
+
 import {
   AUTH_OWNER_STRATEGY,
   AUTH_ROLE_STRATEGY,
@@ -11,6 +13,7 @@ import { ACCOUNT_STATUS } from '~helpers/constants/models';
 
 const authDirectiveTransformer = (schema, directiveName) => {
   const typeDirectiveArgumentMaps = {};
+
   return mapSchema(schema, {
     [MapperKind.TYPE]: type => {
       const authDirective = getDirective(schema, type, directiveName)?.[0];
@@ -26,20 +29,22 @@ const authDirectiveTransformer = (schema, directiveName) => {
       if (authDirective) {
         const { resolve = defaultFieldResolver } = fieldConfig;
         const newFieldConfig = { ...fieldConfig };
+
         newFieldConfig.resolve = async (source, args, context, info) => {
-          // check authentication
-          var { tokenInfo, sessionId, currentUser, isRootUser, isAdmin } = context;
+          const { tokenInfo, sessionId, currentUser, isRootUser, isAdmin } = context;
 
           const isLoggedIn = tokenInfo && tokenInfo.sid === sessionId;
           if (!(currentUser && isLoggedIn)) {
-            throw new AuthenticationError(UNAUTHENTICATED);
+            return Fail({
+              message: UNAUTHENTICATED,
+              code: UNAUTHENTICATED,
+            });
           }
 
           if ([ACCOUNT_STATUS.BLOCKED, ACCOUNT_STATUS.LOCKED].includes(currentUser.status)) {
             throw new ForbiddenError(currentUser.status);
           }
 
-          // check authorization for non-admin
           if (!isRootUser) {
             const { rules } = authDirective;
             if (rules) {
@@ -47,33 +52,31 @@ const authDirectiveTransformer = (schema, directiveName) => {
                 const { allow, identityClaim, roles, scopes } = rule;
                 switch (allow) {
                   case AUTH_OWNER_STRATEGY:
-                    return new Promise((permit, reject) => {
+                    return new Promise((resolve, reject) => {
                       const granted = isAdmin || source[identityClaim] === currentUser.id;
                       if (!granted) {
-                        reject();
+                        return reject(new ForbiddenError(UNAUTHORIZED));
                       }
-                      permit();
+                      return resolve(true);
                     });
                   case AUTH_ROLE_STRATEGY:
-                    return new Promise((permit, reject) => {
+                    return new Promise((resolve, reject) => {
                       const granted = currentUser.hasRole(roles);
                       if (!granted) {
-                        reject();
+                        return reject(new ForbiddenError(UNAUTHORIZED));
                       }
-                      permit();
+                      return resolve(true);
                     });
                   case AUTH_SCOPE_STRATEGY:
-                    return new Promise((permit, reject) => {
+                    return new Promise((resolve, reject) => {
                       const granted = currentUser.hasPermission(scopes);
                       if (!granted) {
-                        reject();
+                        return reject(new ForbiddenError(UNAUTHORIZED));
                       }
-                      permit();
+                      return resolve(true);
                     });
                   default:
-                    return new Promise((_, reject) => {
-                      reject();
-                    });
+                    return Promise.reject(new ForbiddenError(UNAUTHORIZED));
                 }
               });
 
@@ -87,6 +90,7 @@ const authDirectiveTransformer = (schema, directiveName) => {
 
           return resolve(source, args, context, info);
         };
+
         return newFieldConfig;
       }
       return fieldConfig;

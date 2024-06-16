@@ -2,7 +2,7 @@ import multer from 'multer';
 import numeral from 'numeral';
 import multerS3 from 'multer-s3';
 import { nanoid } from 'nanoid';
-import { UserInputError } from 'apollo-server-core';
+import { UserInputError } from '@apollo/server';
 import { s3 } from '~services/aws';
 import {
   IMAGE_TOO_LARGE,

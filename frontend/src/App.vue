@@ -1,16 +1,17 @@
 <script setup>
-import { useAppConfig } from "@/composable/useAppConfig";
-import Blank from "@/layouts/Blank.vue";
-import Default from "@/layouts/Default.vue";
-import { appConfig } from "@appConfig";
-import { useRouter } from "vue-router";
+import { useAppConfig } from '@/composable/useAppConfig';
+import Blank from '@/layouts/Blank.vue';
+import Default from '@/layouts/Default.vue';
+import { appConfig } from '@appConfig';
+import { useRouter } from 'vue-router';
+import { encryptLocalIV } from '@/plugins/crypto';
 
 const route = useRouter();
 const { initLoadingTheme, rootClasses } = useAppConfig();
 
 const resolveLayoutVariant = computed(() => {
-  if (route.currentRoute.value.meta.layout === "content") return Default;
-  if (route.currentRoute.value.meta.layout === "blank") return Blank;
+  if (route.currentRoute.value.meta.layout === 'content') return Default;
+  if (route.currentRoute.value.meta.layout === 'blank') return Blank;
 
   return false;
 });

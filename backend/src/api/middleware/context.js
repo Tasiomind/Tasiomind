@@ -10,14 +10,16 @@ import Sentry from '~services/sentry';
 import getUser from '~utils/getUser';
 import TokenError from '~utils/errors/TokenError';
 import { CLIENTS_CACHE_KEY } from '~helpers/constants/auth';
-import { encrypt, encryptLocalIV, decrypt, decryptLocalIV } from '~utils/crypto';
+import { decryptLocalIV } from '~utils/crypto';
+import { getDecryptedCookie } from '~utils/cookieManager';
 
-const contextMiddleware = async (req, _res, next) => {
-  const { authorization, client_id: encryptedClientId } = req.headers;
+const contextMiddleware = async (req, res, next) => {
+  const { client_id: encryptedClientId } = req.headers;
+  const accessToken = getDecryptedCookie(req, 'accessToken');
+  console.error('accessToken : ', accessToken);
   const clientId = decryptLocalIV(encryptedClientId);
   let tokenInfo;
   let sessionId;
-  const accessToken = authorization?.split(' ')?.[1];
   let currentUser;
   let isRootUser = false;
   let isAdmin = false;
@@ -67,7 +69,10 @@ const contextMiddleware = async (req, _res, next) => {
   req.context = {
     db,
     otp,
+    cookie: res.cookie,
     jwt,
+    req,
+    res,
     cache,
     isAdmin,
     isRootUser,

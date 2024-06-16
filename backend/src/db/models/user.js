@@ -29,6 +29,16 @@ import {
 } from '~helpers/constants/models';
 import capitalize from 'lodash.capitalize';
 
+const defaultUsers = [
+  {
+    firstName: 'Root',
+    lastName: 'User',
+    email: 'root@example.com',
+    password: 'rootpassword78&&',
+    roles: ['root', 'admin', 'developer'],
+  },
+];
+
 export default (sequelize, DataTypes) => {
   class User extends Model {
     /**
@@ -46,6 +56,22 @@ export default (sequelize, DataTypes) => {
         onDelete: 'CASCADE',
         hooks: true,
       });
+    }
+
+    static async seedDefaultUsers() {
+      try {
+        for (const userData of defaultUsers) {
+          const existingUser = await User.findOne({ where: { email: userData.email } });
+          if (!existingUser) {
+            await User.create(userData);
+            console.log(`Created user: ${userData.email}`);
+          } else {
+            console.log(`User "${userData.email}" already exists, skipping creation.`);
+          }
+        }
+      } catch (error) {
+        console.error('Error seeding default users:', error);
+      }
     }
 
     hasRole(roles) {
@@ -116,7 +142,7 @@ export default (sequelize, DataTypes) => {
           return [this.firstName, this.lastName].join(' ');
         },
         set() {
-          // throw new Error("Do not try to set the `fullName` value!");
+          throw new Error('Do not try to set the `fullName` value!');
         },
       },
       username: {
@@ -275,6 +301,8 @@ export default (sequelize, DataTypes) => {
       user.setDataValue('passwordResetAt', dayjs.utc().toDate());
     }
   });
+
+  // User.seedDefaultUsers();
 
   return User;
 };

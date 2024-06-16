@@ -1,4 +1,4 @@
-import { AuthenticationError, ForbiddenError } from 'apollo-server-core';
+import { AuthenticationError, ForbiddenError } from '@apollo/server';
 import { UNAUTHENTICATED, UNAUTHORIZED } from '~helpers/constants/responseCodes';
 import { ACCOUNT_STATUS } from '~helpers/constants/models';
 

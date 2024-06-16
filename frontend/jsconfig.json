@@ -30,7 +30,7 @@
         "appConfig.js"
       ],
       "@axios": [
-        "src/plugins/API/axios.js"
+        "src/plugins/API/index.js"
       ],
       "@auth": [
         "src/store/modules/auth.js"

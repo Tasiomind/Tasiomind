@@ -1,4 +1,4 @@
-import { AuthenticationError, ForbiddenError, UserInputError } from 'apollo-server-core';
+import { AuthenticationError, ForbiddenError, UserInputError } from '@apollo/server';
 import TokenError from '~utils/errors/TokenError';
 import analytics from '~services/analytics';
 import log from '~utils/logger';

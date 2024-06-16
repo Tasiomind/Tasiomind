@@ -1,15 +1,13 @@
 <script setup>
-import { useI18n } from 'vue-i18n';
 import { getUserData } from '@/stores/storage';
-import { useAuthStore } from '@/stores/auth';
+import { useAuthStore } from '@/stores';
 
-const { t, d } = useI18n();
-const router = useRouter();
-const quickLinks = ref([]);
+const { t } = useI18n();
 const authStore = useAuthStore();
-const user = computed(() => getUserData());
+const user = ref(authStore.user);
+const quickLinks = ref([]);
 
-onMounted(async () => {
+onMounted(() => {
   quickLinks.value = [
     {
       title: t('Users'),
@@ -24,15 +22,15 @@ onMounted(async () => {
   ];
 });
 
-const logOut = async () => {
+const logOut = () => {
   authStore.logout();
 };
 
 const usernameInitials = computed(() => {
   if (user.value) {
-    const first = user.value?.firstName?.charAt(0) ?? '?';
-    const second = user.value?.lastName?.charAt(0) ?? '?';
-    return first + second;
+    const first = user.value.firstName?.charAt(0) ?? '?';
+    const second = user.value.lastName?.charAt(0) ?? '?';
+    return `${first}${second}`;
   }
   return '??';
 });
@@ -40,13 +38,12 @@ const usernameInitials = computed(() => {
 
 <template>
   <VAvatar class="cursor-pointer" color="red">
-    <VImg v-if="user?.socialAvatarURL" :src="user?.socialAvatarURL" />
+    <VImg v-if="user.socialAvatarURL" :src="user.socialAvatarURL" />
     <span v-else class="text-h5">{{ usernameInitials }}</span>
     <VMenu activator="parent">
       <VList>
-        <VListItem v-if="user" :append-avatar="avatar">
-          <VListItemTitle>{{ user.firstName + ' ' + user.lastName }}</VListItemTitle>
-          <!-- <VListItemSubtitle>{{ user.email }}</VListItemSubtitle> -->
+        <VListItem v-if="user">
+          <VListItemTitle>{{ `${user.firstName} ${user.lastName}` }}</VListItemTitle>
         </VListItem>
         <VDivider class="mt-2" />
         <VListItem

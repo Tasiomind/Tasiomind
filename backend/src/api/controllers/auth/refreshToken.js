@@ -1,6 +1,6 @@
-import dayjs from "~utils/dayjs";
-import TokenError from "~utils/errors/TokenError";
-import { TOKEN_INVALID_ERROR } from "~helpers/constants/responseCodes";
+import dayjs from '~utils/dayjs';
+import TokenError from '~utils/errors/TokenError';
+import { TOKEN_INVALID_ERROR } from '~helpers/constants/responseCodes';
 
 const refreshTokenController = async (req, res) => {
   const { authorization, refresh_token: rfToken } = req.headers;
@@ -11,7 +11,7 @@ const refreshTokenController = async (req, res) => {
 
   try {
     const { sub } = jwt.decode(authorization);
-    const decodedRefreshToken = jwt.verify(rfToken, { clientId }); // this will throw an error if invalid
+    const decodedRefreshToken = jwt.verify(rfToken, { clientId });
 
     const key = `${clientId}:${sub}`;
     const jti = await cache.get(key);
@@ -28,20 +28,30 @@ const refreshTokenController = async (req, res) => {
         where: {
           id: sub,
         },
-      }
+      },
     );
 
-    const { accessToken, refreshToken, exp, sid } = await jwt.getAuthTokens(
-      sub,
-      { clientId }
-    );
+    const { accessToken, refreshToken, exp, sid } = await jwt.getAuthTokens(sub, { clientId });
 
     await cache.set(`${clientId}:${sub}`, sid, exp);
 
-    res.json({
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'Strict',
+      maxAge: exp * 1000,
+    });
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'Strict',
+      maxAge: 30 * 24 * 60 * 60 * 1000, // Example: 30 days in milliseconds
+    });
+
+    res.status(200).json({
       success: true,
-      accessToken,
-      refreshToken,
+      message: t('Tokens refreshed successfully'),
     });
   } catch (e) {
     res.status(401).json({

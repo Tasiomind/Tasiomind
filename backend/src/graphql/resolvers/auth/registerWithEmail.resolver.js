@@ -1,20 +1,13 @@
-import { GraphQLError } from "graphql";
-import analytics from "~services/analytics";
-import QueryError from "~utils/errors/QueryError";
-import { Success, Fail } from "~helpers/response";
-import {
-  SIGNUP_FAILED,
-  WELCOME_NEW_USER,
-} from "~helpers/constants/responseCodes";
-import { ACCOUNT_STATUS } from "~helpers/constants/models";
+import { GraphQLError } from 'graphql';
+import analytics from '~services/analytics';
+import QueryError from '~utils/errors/QueryError';
+import { Success, Fail } from '~helpers/response';
+import { SIGNUP_FAILED, WELCOME_NEW_USER } from '~helpers/constants/responseCodes';
+import { ACCOUNT_STATUS } from '~helpers/constants/models';
 
 export default {
   Mutation: {
-    async registerWithEmail(
-      _parent,
-      { input },
-      { dataSources, jwt, t, cache, clientId }
-    ) {
+    async registerWithEmail(_parent, { input }, { dataSources, jwt, t, cache, clientId }) {
       try {
         const existingUser = await dataSources.users.findOne({
           where: {
@@ -32,24 +25,21 @@ export default {
         }
         const { id, firstName } = await dataSources.users.create(input);
 
-        const { accessToken, refreshToken, sid, exp } = await jwt.getAuthTokens(
-          id,
-          {
-            clientId,
-          }
-        );
+        const { accessToken, refreshToken, sid, exp } = await jwt.getAuthTokens(id, {
+          clientId,
+        });
 
         await cache.set(`${clientId}:${id}`, sid, exp);
 
         analytics.track({
           userId: id,
-          event: "Signed Up",
+          event: 'Signed Up',
         });
+        //TODO! res.cookie refreshToken
+
         return Success({
           message: t(WELCOME_NEW_USER, { firstName }),
           code: WELCOME_NEW_USER,
-          accessToken,
-          refreshToken,
         });
       } catch (e) {
         if (e instanceof QueryError) {

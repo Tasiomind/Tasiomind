@@ -1,21 +1,14 @@
-import { GraphQLError } from "graphql";
-import analytics from "~services/analytics";
-import dayjs from "~utils/dayjs";
-import QueryError from "~utils/errors/QueryError";
-import { Fail, Success } from "~helpers/response";
-import {
-  WELCOME_BACK,
-  WELCOME_NEW_USER,
-} from "~helpers/constants/responseCodes";
-import { ACCOUNT_STATUS } from "~helpers/constants/models";
+import { GraphQLError } from 'graphql';
+import analytics from '~services/analytics';
+import dayjs from '~utils/dayjs';
+import QueryError from '~utils/errors/QueryError';
+import { Fail, Success } from '~helpers/response';
+import { WELCOME_BACK, WELCOME_NEW_USER } from '~helpers/constants/responseCodes';
+import { ACCOUNT_STATUS } from '~helpers/constants/models';
 
 export default {
   Mutation: {
-    async loginWithSocialProvider(
-      _parent,
-      { input },
-      { t, dataSources, jwt, cache, clientId }
-    ) {
+    async loginWithSocialProvider(_parent, { input }, { t, dataSources, jwt, cache, clientId }) {
       try {
         const userInfo = await jwt.verifySocialToken(input);
         const [user, created] = await dataSources.users.findOrCreate({
@@ -23,9 +16,7 @@ export default {
           status: ACCOUNT_STATUS.ACTIVE,
         });
 
-        if (
-          [ACCOUNT_STATUS.BLOCKED, ACCOUNT_STATUS.LOCKED].includes(user.status)
-        ) {
+        if ([ACCOUNT_STATUS.BLOCKED, ACCOUNT_STATUS.LOCKED].includes(user.status)) {
           throw new GraphQLError(user.status);
         }
 
@@ -35,29 +26,25 @@ export default {
           lastLogin: dayjs.utc().toDate(),
         });
 
-        const { accessToken, refreshToken, sid, exp } = await jwt.getAuthTokens(
-          id,
-          {
-            clientId,
-          }
-        );
+        const { accessToken, refreshToken, sid, exp } = await jwt.getAuthTokens(id, {
+          clientId,
+        });
 
         await cache.set(`${clientId}:${id}`, sid, exp);
 
         analytics.track({
           userId: id,
-          event: "Logged In",
+          event: 'Logged In',
           properties: {
             provider: input.provider,
           },
         });
 
         const code = created ? WELCOME_NEW_USER : WELCOME_BACK;
+        //TODO! res.cookie refreshToken
         return Success({
           message: t(code, { firstName }),
           code,
-          accessToken,
-          refreshToken,
         });
       } catch (e) {
         if (e instanceof QueryError) {

@@ -11,12 +11,12 @@ import {
 
 export default (sequelize, DataTypes) => {
   class Application extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
-    // static associate(models) {}
+    static associate(models) {
+      Application.hasMany(models.User, {
+        foreignKey: 'applicationID',
+        as: 'users',
+      });
+    }
   }
   Application.init(
     {
@@ -82,7 +82,7 @@ export default (sequelize, DataTypes) => {
             Sentry.addBreadcrumb({
               category: 'application',
               message: 'Validating application data',
-              level: 'info',
+              level: Sentry.Severity.Info,
             });
           } catch (err) {
             console.error('Error in beforeValidate hook:', err);
@@ -92,6 +92,15 @@ export default (sequelize, DataTypes) => {
       },
     },
   );
+
+  Application.seedInitialRow = async () => {
+    await Application.create({
+      id: '96341873-520f-480c-be51-37a1979c8d83',
+      clientID: 'f078d36a-b15a-4387-a0e3-726b7e48b777',
+      name: 'frontend',
+      description: 'Frontend application',
+    });
+  };
 
   return Application;
 };

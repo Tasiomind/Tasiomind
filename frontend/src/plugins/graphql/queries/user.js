@@ -7,18 +7,53 @@ export const Me = gql`
       success
       message
       user {
-        id
         firstName
         lastName
         username
         roles {
-          id
           name
-          description
-          createdAt
-          updatedAt
         }
         socialAvatarURL
+        phoneNumberVerified
+        emailVerified
+        timezone
+        locale
+        isLocked
+        isOwner
+        avatar {
+          url
+          thumbnail
+        }
+        phoneNumber
+        email
+        fullName
+      }
+    }
+  }
+`;
+
+// get all users
+export const Users = gql`
+  query Users {
+    users {
+      code
+      success
+      message
+      users {
+        id
+        firstName
+        lastName
+        username
+        email
+        phoneNumber
+        locale
+        timezone
+        status
+        roles {
+          name
+        }
+        createdAt
+        updatedAt
       }
     }
   }

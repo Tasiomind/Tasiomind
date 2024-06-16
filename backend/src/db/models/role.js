@@ -1,17 +1,23 @@
-import { Model } from "sequelize";
+import { Model } from 'sequelize';
 import {
   ROLE_DESCRIPTION_EMPTY_ERROR,
   ROLE_DESCRIPTION_LEN_ERROR,
   ROLE_NAME_LEN_ERROR,
   ROLE_NAME_UNIQUE_ERROR,
   ROLE_NAME_INVALID_FORMAT_ERROR,
-} from "~helpers/constants/responseCodes";
+} from '~helpers/constants/responseCodes';
 import {
   PERMISSIONS_ALIAS,
   ROLE_MEMBERS_ALIAS,
   ROLE_PERMISSIONS_JOIN_TABLE,
   USER_ROLES_JOIN_TABLE,
-} from "~helpers/constants/models";
+} from '~helpers/constants/models';
+
+const defaultRoles = [
+  { name: 'root', description: 'Root role with full access' },
+  { name: 'admin', description: 'Administrator role' },
+  { name: 'developer', description: 'Developer role' },
+];
 
 export default (sequelize, DataTypes) => {
   class Role extends Model {
@@ -30,7 +36,23 @@ export default (sequelize, DataTypes) => {
         through: ROLE_PERMISSIONS_JOIN_TABLE,
       });
     }
+    static async seedDefaultRoles() {
+      try {
+        for (const roleData of defaultRoles) {
+          const existingRole = await Role.findOne({ where: { name: roleData.name } });
+          if (!existingRole) {
+            await Role.create(roleData);
+            console.log(`Created role: ${roleData.name}`);
+          } else {
+            console.log(`Role "${roleData.name}" already exists, skipping creation.`);
+          }
+        }
+      } catch (error) {
+        console.error('Error seeding default roles:', error);
+      }
+    }
   }
+
   Role.init(
     {
       id: {
@@ -73,14 +95,14 @@ export default (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: "Role",
+      modelName: 'Role',
       scopes: {
         permissions: {
-          attributes: ["id", "name"],
+          attributes: ['id', 'name'],
           include: [
             {
               association: PERMISSIONS_ALIAS,
-              attributes: ["id", "scope"],
+              attributes: ['id', 'scope'],
               through: {
                 attributes: [],
               },
@@ -88,7 +110,10 @@ export default (sequelize, DataTypes) => {
           ],
         },
       },
-    }
+    },
   );
+
+  Role.seedDefaultRoles();
+
   return Role;
 };

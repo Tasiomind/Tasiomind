@@ -4,9 +4,6 @@ import { createSessionSecret } from '~utils/crypto';
 const SESSION_SECRET = createSessionSecret();
 
 export default app => {
-  // Sessions allow us to Contact data on visitors from request to request
-  // This keeps admins logged in and allows us to send flash messages
-  // store: new FileStore(),
   app.use(
     session({
       name: 'UUID',
@@ -18,7 +15,7 @@ export default app => {
         path: '/',
         httpOnly: true,
         maxAge: 1000 * 60 * 60 * 24,
-        sameSite: 'none',
+        sameSite: 'Lax',
         secure: true,
         HostOnly: true,
       },
