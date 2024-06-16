@@ -154,7 +154,6 @@ export default {
         return Success({
           message: t(WELCOME_BACK, { firstName }),
           code: WELCOME_BACK,
-          user: updatedUser,
         });
       } catch (e) {
         if (e instanceof QueryError) {

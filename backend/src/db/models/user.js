@@ -28,16 +28,7 @@ import {
   USER_ROLES_JOIN_TABLE,
 } from '~helpers/constants/models';
 import capitalize from 'lodash.capitalize';
-
-const defaultUsers = [
-  {
-    firstName: 'Root',
-    lastName: 'User',
-    email: 'root@example.com',
-    password: 'rootpassword78&&',
-    roles: ['root', 'admin', 'developer'],
-  },
-];
+import config from 'config/app.config';
 
 export default (sequelize, DataTypes) => {
   class User extends Model {
@@ -60,17 +51,35 @@ export default (sequelize, DataTypes) => {
 
     static async seedDefaultUsers() {
       try {
-        for (const userData of defaultUsers) {
+        for (const userData of config.defaultUsers) {
           const existingUser = await User.findOne({ where: { email: userData.email } });
           if (!existingUser) {
-            await User.create(userData);
+            const newUser = await User.create(userData);
+            await this.assignUserRole(newUser, userData.roles);
             console.log(`Created user: ${userData.email}`);
           } else {
+            await this.assignUserRole(existingUser, userData.roles);
             console.log(`User "${userData.email}" already exists, skipping creation.`);
           }
         }
       } catch (error) {
         console.error('Error seeding default users:', error);
+      }
+    }
+
+    static async assignUserRole(user, roles) {
+      try {
+        for (const roleName of roles) {
+          const role = await sequelize.models.Role.findOne({ where: { name: roleName } });
+          if (role) {
+            await user.addRole(role);
+            console.log(`Assigned role '${roleName}' to user: ${user.email}`);
+          } else {
+            console.error(`Role '${roleName}' not found.`);
+          }
+        }
+      } catch (error) {
+        console.error(`Error assigning roles to user ${user.email}:`, error);
       }
     }
 
@@ -302,7 +311,7 @@ export default (sequelize, DataTypes) => {
     }
   });
 
-  // User.seedDefaultUsers();
+  User.seedDefaultUsers();
 
   return User;
 };

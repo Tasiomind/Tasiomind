@@ -94,7 +94,7 @@ export const encryptLocalIV = (text, secret = config.crypto.ivs.main) => {
   if (!iv) return false;
 
   const parsedIV = CryptoJS.enc.Hex.parse(iv);
-  const parsedKey = CryptoJS.SHA256(config.cryptoKey);
+  const parsedKey = CryptoJS.SHA256(config.crypto.secretKeys.main);
 
   const encrypted = CryptoJS.AES.encrypt(string, parsedKey, {
     iv: parsedIV,
@@ -151,7 +151,7 @@ export const decryptLocalIV = (encrypted, secret = config.crypto.ivs.main) => {
   if (!iv) throw new Error('IV not provided in config');
 
   const parsedIV = CryptoJS.enc.Hex.parse(iv);
-  const parsedKey = CryptoJS.SHA256(config.cryptoKey);
+  const parsedKey = CryptoJS.SHA256(config.crypto.secretKeys.main);
 
   const decrypted = CryptoJS.AES.decrypt(CryptoJS.format.Hex.parse(encrypted), parsedKey, {
     iv: parsedIV,

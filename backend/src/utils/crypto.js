@@ -56,11 +56,8 @@ export const encryptLocalIV = (text, secret = config.crypto.ivs.main) => {
     return false;
   }
 
-  const iv = secret;
-  if (!iv) return false;
-
-  const parsedIV = CryptoJS.enc.Hex.parse(iv);
-  const parsedKey = CryptoJS.SHA256(config.cryptoKey);
+  const parsedIV = CryptoJS.enc.Hex.parse(secret);
+  const parsedKey = CryptoJS.SHA256(config.crypto.secretKeys.main);
 
   const encrypted = CryptoJS.AES.encrypt(string, parsedKey, {
     iv: parsedIV,
@@ -84,7 +81,7 @@ export const decrypt = encrypted => {
   const iv = CryptoJS.enc.Hex.parse(json.iv);
   const parsedKey = CryptoJS.SHA256(config.crypto.secretKeys.main);
 
-  const decrypted = CryptoJS.AES.decrypt(json.data, parsedKey, {
+  const decrypted = CryptoJS.AES.decrypt(CryptoJS.format.Hex.parse(json.data), parsedKey, {
     iv: iv,
     mode: CryptoJS.mode.CTR,
   });
@@ -97,17 +94,21 @@ export const decrypt = encrypted => {
 };
 
 export const decryptLocalIV = (encrypted, secret = config.crypto.ivs.main) => {
-  console.log(secret);
   const iv = secret;
   if (!iv) throw new Error('IV not provided in config');
+  if (!encrypted) throw new Error('provided in config');
 
   const parsedIV = CryptoJS.enc.Hex.parse(iv);
-  const parsedKey = CryptoJS.SHA256(config.cryptoKey);
+  const parsedKey = CryptoJS.SHA256(config.crypto.secretKeys.main);
 
   const decrypted = CryptoJS.AES.decrypt(CryptoJS.format.Hex.parse(encrypted), parsedKey, {
     iv: parsedIV,
     mode: CryptoJS.mode.CTR,
   });
 
-  return decrypted.toString(CryptoJS.enc.Utf8);
+  try {
+    return JSON.parse(decrypted.toString(CryptoJS.enc.Utf8));
+  } catch (error) {
+    return decrypted.toString(CryptoJS.enc.Utf8);
+  }
 };

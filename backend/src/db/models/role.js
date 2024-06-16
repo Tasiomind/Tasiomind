@@ -12,12 +12,7 @@ import {
   ROLE_PERMISSIONS_JOIN_TABLE,
   USER_ROLES_JOIN_TABLE,
 } from '~helpers/constants/models';
-
-const defaultRoles = [
-  { name: 'root', description: 'Root role with full access' },
-  { name: 'admin', description: 'Administrator role' },
-  { name: 'developer', description: 'Developer role' },
-];
+import config from 'config/app.config';
 
 export default (sequelize, DataTypes) => {
   class Role extends Model {
@@ -38,7 +33,7 @@ export default (sequelize, DataTypes) => {
     }
     static async seedDefaultRoles() {
       try {
-        for (const roleData of defaultRoles) {
+        for (const roleData of config.defaultRoles) {
           const existingRole = await Role.findOne({ where: { name: roleData.name } });
           if (!existingRole) {
             await Role.create(roleData);

@@ -13,7 +13,6 @@ const initializeDatabase = async () => {
   try {
     await sequelize.authenticate();
     await sequelize.sync({ force: false, logging: false });
-    // await sequelize.drop();
 
     console.log('✨ A gateway to the database world has been successfully opened.');
     console.log(

@@ -52,7 +52,6 @@ type AuthMutationResponse implements Response {
   code: ID!
   success: Boolean!
   message: String!
-  user: User
 }
 
 """

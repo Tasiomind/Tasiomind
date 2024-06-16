@@ -1,13 +1,13 @@
 import { uuidv4 } from '~utils/uuid';
 import { Model } from 'sequelize';
 import Sentry from '~services/sentry';
-
 import {
   APPLICATION_DESCRIPTION_EMPTY_ERROR,
   APPLICATION_DESCRIPTION_LEN_ERROR,
   APPLICATION_NAME_EMPTY_ERROR,
   APPLICATION_NAME_LEN_ERROR,
 } from '~helpers/constants/responseCodes';
+import config from 'config/app.config';
 
 export default (sequelize, DataTypes) => {
   class Application extends Model {
@@ -16,6 +16,24 @@ export default (sequelize, DataTypes) => {
         foreignKey: 'applicationID',
         as: 'users',
       });
+    }
+    static async seedDefaultApplications() {
+      try {
+        for (const applicationData of config.defaultApplications) {
+          const existingApplication = await Application.findOne({
+            where: { clientID: applicationData.clientID },
+          });
+          if (!existingApplication) {
+            await Application.create(applicationData);
+            console.log(`Created application: ${applicationData.name}`);
+          } else {
+            console.log(`Application "${applicationData.name}" already exists, skipping creation.`);
+          }
+        }
+      } catch (err) {
+        console.error('Error seeding default applications:', err);
+        Sentry.captureException(err);
+      }
     }
   }
   Application.init(
@@ -93,14 +111,7 @@ export default (sequelize, DataTypes) => {
     },
   );
 
-  Application.seedInitialRow = async () => {
-    await Application.create({
-      id: '96341873-520f-480c-be51-37a1979c8d83',
-      clientID: 'f078d36a-b15a-4387-a0e3-726b7e48b777',
-      name: 'frontend',
-      description: 'Frontend application',
-    });
-  };
+  Application.seedDefaultApplications();
 
   return Application;
 };

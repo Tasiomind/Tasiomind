@@ -1,15 +1,10 @@
-import {
-  EmptyResultError,
-  Op,
-  UniqueConstraintError,
-  ValidationError,
-} from "sequelize";
-import { RESTDataSource } from "@apollo/datasource-rest";
-import DataLoader from "dataloader";
-import deepmerge from "deepmerge";
-import formatErrors from "~utils/formatErrors";
-import FieldErrors from "~utils/errors/FieldErrors";
-import QueryError from "~utils/errors/QueryError";
+import { EmptyResultError, Op, UniqueConstraintError, ValidationError } from 'sequelize';
+import { RESTDataSource } from '@apollo/datasource-rest';
+import DataLoader from 'dataloader';
+import deepmerge from 'deepmerge';
+import formatErrors from '~utils/formatErrors';
+import FieldErrors from '~utils/errors/FieldErrors';
+import QueryError from '~utils/errors/QueryError';
 import {
   ensureDeterministicOrder,
   createCursor,
@@ -17,10 +12,10 @@ import {
   reverseOrder,
   buildPaginationQuery,
   normalizeOrder,
-} from "~utils/transformers/paginate";
-import { buildWhereQuery, buildIncludeQuery } from "~utils/transformers/filter";
-import { buildEagerLoadingQuery } from "~utils/transformers/eagerLoader";
-import { FIELD_ERRORS, ITEM_NOT_FOUND } from "~helpers/constants/responseCodes";
+} from '~utils/transformers/paginate';
+import { buildWhereQuery, buildIncludeQuery } from '~utils/transformers/filter';
+import { buildEagerLoadingQuery } from '~utils/transformers/eagerLoader';
+import { FIELD_ERRORS, ITEM_NOT_FOUND } from '~helpers/constants/responseCodes';
 
 /**
  * The SequelizeDataSource abstract class helps you query data from an SQL database. Your server
@@ -35,24 +30,31 @@ export default class SequelizeDataSource extends RESTDataSource {
   constructor(model) {
     super();
     this.model = model;
-    this.loader = new DataLoader(async (ids) => {
-      const result = await this.model.findAll({
-        where: {
-          id: ids,
-        },
-      });
+    this.context = {};
+    this.loader = new DataLoader(
+      async ids => {
+        const result = await this.model.findAll({
+          where: {
+            id: ids,
+          },
+        });
 
-      const map = {};
-      result.forEach((elem) => {
-        map[elem.id] = elem;
-      });
+        const map = {};
+        result.forEach(elem => {
+          map[elem.id] = elem;
+        });
 
-      return ids.map((id) => map[id]);
-    });
+        return ids.map(id => map[id]);
+      },
+      {
+        cache: false,
+      },
+    );
   }
 
   initialize({ context } = {}) {
     this.context = context;
+    super.initialize({ context });
   }
 
   onCreate({ newItem }) {
@@ -69,11 +71,7 @@ export default class SequelizeDataSource extends RESTDataSource {
 
   onError(e) {
     if (e instanceof ValidationError || e instanceof UniqueConstraintError) {
-      throw new FieldErrors(
-        FIELD_ERRORS,
-        formatErrors(e.errors, this.context.t),
-        e
-      );
+      throw new FieldErrors(FIELD_ERRORS, formatErrors(e.errors, this.context.t), e);
     } else if (e instanceof EmptyResultError) {
       throw new QueryError(ITEM_NOT_FOUND, e);
     } else {
@@ -86,7 +84,7 @@ export default class SequelizeDataSource extends RESTDataSource {
   }
 
   primeMany(items) {
-    items.forEach((item) => this.prime(item));
+    items.forEach(item => this.prime(item));
   }
 
   findByPk(id) {
@@ -261,22 +259,18 @@ export default class SequelizeDataSource extends RESTDataSource {
 
     const paginationQuery = cursor && buildPaginationQuery(order, cursor);
     const where = filter?.where && buildWhereQuery(filter.where);
-    const includeFilter = filter?.include
-      ? buildIncludeQuery(filter.include)
-      : [];
+    const includeFilter = filter?.include ? buildIncludeQuery(filter.include) : [];
     const includeAssociation = info
       ? buildEagerLoadingQuery({
           info,
           skip,
-          path: "items",
+          path: 'items',
           model: this.model,
         })
       : [];
     const include = deepmerge(includeAssociation, includeFilter);
 
-    const paginationWhere = paginationQuery
-      ? { [Op.and]: [paginationQuery, where] }
-      : where;
+    const paginationWhere = paginationQuery ? { [Op.and]: [paginationQuery, where] } : where;
 
     const [rows, count, totalCount] = await Promise.all([
       this.findAll({
@@ -308,10 +302,8 @@ export default class SequelizeDataSource extends RESTDataSource {
       pageInfo: {
         endCursor,
         startCursor,
-        hasNextPage:
-          (!before && remaining > 0) || (!!before && totalCount - count > 0),
-        hasPreviousPage:
-          (!!before && remaining > 0) || (!before && totalCount - count > 0),
+        hasNextPage: (!before && remaining > 0) || (!!before && totalCount - count > 0),
+        hasPreviousPage: (!!before && remaining > 0) || (!before && totalCount - count > 0),
       },
     };
   }

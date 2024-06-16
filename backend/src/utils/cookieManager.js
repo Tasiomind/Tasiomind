@@ -39,10 +39,13 @@ export const setEncryptedCookie = (res, name, value, options = defaultCookieOpti
 };
 
 export const getDecryptedCookie = (req, name) => {
-  const encryptedValue = getCookie(req, name);
-  console.error('encryptedValue : ', encryptedValue);
-  if (encryptedValue) {
-    return decryptLocalIV(encryptedValue);
+  try {
+    const encryptedValue = getCookie(req, name);
+    if (encryptedValue) {
+      return decryptLocalIV(encryptedValue);
+    }
+  } catch (error) {
+    console.error(`Error decrypting cookie ${name}:`, error);
   }
   return null;
 };

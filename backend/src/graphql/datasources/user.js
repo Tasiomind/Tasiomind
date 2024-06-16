@@ -1,5 +1,5 @@
-import { USER_PREFIX } from "~helpers/constants/auth";
-import SequelizeDataSource from "./SequelizeDataSource";
+import { USER_PREFIX } from '~helpers/constants/auth';
+import SequelizeDataSource from './SequelizeDataSource';
 
 export default class UserDS extends SequelizeDataSource {
   findOrCreate({ email, ...defaults }) {
@@ -10,6 +10,7 @@ export default class UserDS extends SequelizeDataSource {
   }
 
   async onUpdate(args) {
+    console.error('cache:  ', this.context);
     await this.context.cache.remove(`${USER_PREFIX}:${args.oldImage.id}`);
     super.onUpdate(args);
   }

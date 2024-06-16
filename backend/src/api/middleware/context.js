@@ -16,7 +16,6 @@ import { getDecryptedCookie } from '~utils/cookieManager';
 const contextMiddleware = async (req, res, next) => {
   const { client_id: encryptedClientId } = req.headers;
   const accessToken = getDecryptedCookie(req, 'accessToken');
-  console.error('accessToken : ', accessToken);
   const clientId = decryptLocalIV(encryptedClientId);
   let tokenInfo;
   let sessionId;
