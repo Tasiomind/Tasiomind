@@ -41,8 +41,8 @@ export const useAuthStore = defineStore({
       if (data.loginWithEmail.success) {
         this.setUser(data.loginWithEmail.user);
         saveUserData(data.loginWithEmail.user);
+        router.push({ name: 'home' });
       }
-      router.push('/');
       return data.loginWithEmail;
     },
 
@@ -50,7 +50,7 @@ export const useAuthStore = defineStore({
       const { mutate } = useMutation(logoutMutation);
       await mutate({ all: all });
       this.clearAuthData();
-      router.push('/login');
+      router.push({ path: '/login' });
     },
 
     async requestPasswordReset(email) {

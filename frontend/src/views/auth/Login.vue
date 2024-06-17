@@ -34,7 +34,6 @@ const errors = ref({
 
 const isPasswordVisible = ref(false);
 const isContentExpanded = ref(true);
-const submitDisabled = ref(true);
 
 const authBgThemeVariant = computed(() => (theme.current.value.dark ? authBgDark : authBgLight));
 
@@ -122,13 +121,14 @@ const handleLoginError = ({ message }) => {
               <VExpandTransition>
                 <div v-show="isContentExpanded">
                   <VTextField
-                    v-model="loginData.email"
                     label="Email"
-                    :rules="[validateEmailRule]"
                     class="mb-6"
+                    v-model="loginData.email"
+                    :rules="[validateEmailRule]"
                     :error-messages="errors.email.message"
                   />
                   <VTextField
+                    class="mb-6"
                     v-model="loginData.password"
                     :type="isPasswordVisible ? 'text' : 'password'"
                     :label="t('password')"
@@ -136,7 +136,6 @@ const handleLoginError = ({ message }) => {
                     :append-inner-icon="
                       isPasswordVisible ? 'mdi-eye-off-outline' : 'mdi-eye-outline'
                     "
-                    class="mb-6"
                     :error-messages="errors.password.message"
                     @click:append-inner="isPasswordVisible = !isPasswordVisible"
                   />
