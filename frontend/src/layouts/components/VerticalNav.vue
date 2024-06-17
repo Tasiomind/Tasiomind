@@ -1,5 +1,5 @@
 <script setup>
-import Logo from "@/components/Logo.vue";
+import Logo from "@/components/svg/Logo.vue";
 import { useAppConfig } from "@/composable/useAppConfig";
 import verticalItems from "@/menus/vertical";
 import { appConfig } from "@appConfig";

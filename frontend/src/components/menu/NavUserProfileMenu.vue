@@ -1,8 +1,9 @@
 <script setup>
-import { getUserData } from '@/stores/storage';
 import { useAuthStore } from '@/stores';
 
+
 const { t } = useI18n();
+
 const authStore = useAuthStore();
 const user = ref(authStore.user);
 const quickLinks = ref([]);
@@ -22,8 +23,9 @@ onMounted(() => {
   ];
 });
 
-const logOut = () => {
-  authStore.logout();
+const logOut = async () => {
+  await authStore.logout();
+  // router.to("/login")
 };
 
 const usernameInitials = computed(() => {

@@ -1,4 +1,5 @@
 <template>
+  <div>
   <svg
     v-if="theme == 'dark'"
     width="50"
@@ -41,6 +42,7 @@
       stroke-width="2"
     />
   </svg>
+</div>
 </template>
 
 <script setup>

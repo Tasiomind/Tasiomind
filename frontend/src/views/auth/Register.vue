@@ -2,7 +2,7 @@
 import authBgDark from '@/assets/pages/auth-bg-dark.svg';
 import authBgLight from '@/assets/pages/auth-bg-light.svg';
 import authRegisterImg from '@/assets/pages/working-laptop-while-sitting-chair.png';
-import Logo from '@/components/Logo.vue';
+import Logo from '@/components/svg/Logo.vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useTheme } from 'vuetify';
 import { toast } from 'vue3-toastify';

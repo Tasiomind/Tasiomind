@@ -2,7 +2,7 @@
 import authBgDark from '@/assets/pages/auth-bg-dark.svg';
 import authBgLight from '@/assets/pages/auth-bg-light.svg';
 import authLoginImg from '@/assets/pages/working-desk-with-laptop.png';
-import Logo from '@/components/Logo.vue';
+import Logo from '@/components/svg/Logo.vue';
 
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
@@ -41,7 +41,7 @@ const validateEmailRule = value => {
   const { isValid, message } = validateEmail(value);
   errors.value.email = {
     value: !isValid,
-    message: t(message),
+    message: isValid ? null : t(message),
   };
   return isValid;
 };
@@ -50,37 +50,40 @@ const validatePasswordRule = value => {
   const { isValid, message } = validatePassword(value);
   errors.value.password = {
     value: !isValid,
-    message: t(message),
+    message: isValid ? null : t(message),
   };
   return isValid;
 };
 
 const login = async () => {
-  if (errors.value.email.value || errors.value.password.value) return;
+  if (!validateEmailRule(loginData.value.email) || !validatePasswordRule(loginData.value.password)) {
+    return;
+  }
 
   const { email, password } = loginData.value;
   const data = await authStore.login(email, password);
 
   if (data.success) {
     toast(t(data.message), { type: 'success' });
-    router.push({ name: 'home' });
+    // router.push ({ path: '/' })
+  
   } else {
     handleLoginError(data);
   }
 };
 
 const handleLoginError = ({ message }) => {
-  toast(message, { type: 'error' });
+  toast(t(message), { type: 'error' });
 
   if (message === 'IncorrectPassword') {
     errors.value.password = {
       value: true,
-      message: 'Incorrect Password',
+      message: t('Incorrect Password'),
     };
   } else if (message === 'IncorrectEmail') {
     errors.value.email = {
       value: true,
-      message: 'Incorrect Email',
+      message: t('Incorrect Email'),
     };
   }
 };
@@ -133,9 +136,7 @@ const handleLoginError = ({ message }) => {
                     :type="isPasswordVisible ? 'text' : 'password'"
                     :label="t('password')"
                     :rules="[validatePasswordRule]"
-                    :append-inner-icon="
-                      isPasswordVisible ? 'mdi-eye-off-outline' : 'mdi-eye-outline'
-                    "
+                    :append-inner-icon="isPasswordVisible ? 'mdi-eye-off-outline' : 'mdi-eye-outline'"
                     :error-messages="errors.password.message"
                     @click:append-inner="isPasswordVisible = !isPasswordVisible"
                   />

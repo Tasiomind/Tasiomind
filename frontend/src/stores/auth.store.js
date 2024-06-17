@@ -8,14 +8,13 @@ import {
   // RefreshToken,
 } from '@/plugins/graphql/mutations';
 import { Me } from '@/plugins/graphql/queries';
-import { saveUserData, saveAccessToken, saveRefreshToken, clearStorage } from './storage';
 import { validateEmail, validatePassword } from '@/utils/validation';
-import router from '@/router';
+import {  saveAccessToken, saveRefreshToken, clearStorage } from './storage';
 
 export const useAuthStore = defineStore({
   id: 'auth',
   state: () => ({
-    user: JSON.parse(localStorage.getItem('me')) || null,
+    user: null,
   }),
 
   actions: {
@@ -27,7 +26,6 @@ export const useAuthStore = defineStore({
         const messages = [];
         if (!emailValidation.isValid) messages.push(emailValidation.message);
         if (!passwordValidation.isValid) messages.push(passwordValidation.message);
-        createToast(messages.join(' '));
         return false;
       }
       return true;
@@ -38,19 +36,16 @@ export const useAuthStore = defineStore({
 
       const { mutate } = useMutation(LoginWithEmail);
       const { data } = await mutate({ email, password });
-      if (data.loginWithEmail.success) {
-        this.setUser(data.loginWithEmail.user);
-        saveUserData(data.loginWithEmail.user);
-        router.push({ name: 'home' });
-      }
+      this.setUser(data.loginWithEmail.user);
+      this.router.push({ name: 'home' })
       return data.loginWithEmail;
     },
 
     async logout(all = false) {
       const { mutate } = useMutation(logoutMutation);
-      await mutate({ all: all });
+      await mutate({ all });
       this.clearAuthData();
-      router.push({ path: '/login' });
+      console.log( this.router.push({ name: 'login' }).catch(err => {}))
     },
 
     async requestPasswordReset(email) {
@@ -137,7 +132,7 @@ export const useAuthStore = defineStore({
       return this.user && this.user.roles.length > 0;
     },
     isAuthenticatedWithRouter() {
-      if (this.user) return router.push('/');
+      if (this.user) return this.router.push('/');
     },
   },
 });

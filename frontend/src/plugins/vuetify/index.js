@@ -6,6 +6,11 @@ import router from '@/router';
 
 const pinia = createPinia();
 
+pinia.use(({ store }) => {
+  store.router = markRaw(router);
+  store.toast = markRaw(Vue3Toastify);
+  
+})
 const toastifyOptions = {
   position: 'bottom-right',
   autoClose: 5000,
