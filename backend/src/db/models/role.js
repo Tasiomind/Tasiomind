@@ -32,18 +32,11 @@ export default (sequelize, DataTypes) => {
       });
     }
     static async seedDefaultRoles() {
-      try {
-        for (const roleData of config.defaultRoles) {
-          const existingRole = await Role.findOne({ where: { name: roleData.name } });
-          if (!existingRole) {
-            await Role.create(roleData);
-            console.log(`Created role: ${roleData.name}`);
-          } else {
-            console.log(`Role "${roleData.name}" already exists, skipping creation.`);
-          }
+      for (const roleData of config.defaultRoles) {
+        const existingRole = await Role.findOne({ where: { name: roleData.name } });
+        if (!existingRole) {
+          await Role.create(roleData);
         }
-      } catch (error) {
-        console.error('Error seeding default roles:', error);
       }
     }
   }

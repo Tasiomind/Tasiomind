@@ -10,7 +10,7 @@
         color="primary"
         @click="createItem.callback(createItem)"
       >
-        {{ createItem.label || t("defaultCreate") }}
+        {{ createItem.label || t('defaultCreate') }}
       </v-btn>
     </v-row>
     <v-card flat class="rounded-lg w-100">
@@ -61,23 +61,14 @@
         }"
         return-object
       >
-        <template
-          v-for="(header, i) in headers"
-          v-slot:[`header.${header.key}`]="{}"
-        >
-          <div
-            :key="i"
-            class="column"
-            @click="header.sortable == false ? '' : changeSort(header)"
-          >
+        <template v-for="(header, i) in headers" v-slot:[`header.${header.key}`]="{}">
+          <div :key="i" class="column" @click="header.sortable == false ? '' : changeSort(header)">
             {{ header.title }}
             <v-icon
               class="sortable-icon"
               small
               v-bind:class="pagination.sortBy == header.title ? 'active' : ''"
-              >{{
-                pagination.descending ? "mdi-chevron-down" : "mdi-chevron-up"
-              }}</v-icon
+              >{{ pagination.descending ? 'mdi-chevron-down' : 'mdi-chevron-up' }}</v-icon
             >
 
             <div v-if="!isCellsSearchHidden" @click.stop :key="i">
@@ -116,14 +107,22 @@
           <status :status="value" />
         </template>
 
+        <!-- Roles ITEMS -->
+        <template v-slot:item.roles="{ value }">
+          <v-chip
+            v-for="(role, i) in value"
+            :key="i"
+            :color="role.color"
+            class="text-uppercase"
+            label
+            size="small"
+            >{{ role.name }}</v-chip
+          >
+        </template>
+
         <!-- icon ITEM -->
         <template v-slot:item.icon="{ value }">
-          <v-icon
-            v-if="value"
-            :color="value.color"
-            :icon="value.icon"
-            class="pl-3"
-          />
+          <v-icon v-if="value" :color="value.color" :icon="value.icon" class="pl-3" />
         </template>
 
         <!-- status ITEM -->
@@ -158,9 +157,9 @@
 </template>
 
 <script setup>
-import Menu from "@/components/menu/menu.vue";
-import { useRoute, useRouter } from "vue-router";
-import { useI18n } from "vue-i18n";
+import Menu from '@/components/menu/menu.vue';
+import { useRoute, useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -183,7 +182,7 @@ const props = defineProps({
     default: 10,
   },
   tableTitle: {
-    default: "",
+    default: '',
   },
   sortHidden: {
     type: Boolean,
@@ -236,7 +235,7 @@ let pagination = {
   sortBy: null,
   descending: false,
 };
-const changeSort = (column) => {
+const changeSort = column => {
   if (pagination.sortBy === column.title) {
     pagination.descending = !pagination.descending;
   } else {
@@ -248,64 +247,49 @@ const isSearchHidden = ref(props.searchHidden);
 const isCellsSearchHidden = ref(props.cellSearchHidden);
 const isMenuHidden = ref(props.menuHidden);
 
-const search = ref("");
+const search = ref('');
 const searchResults = ref({});
 
 const filteredData = () => {
   if (searchResults && props.rows) {
-    return props.rows.filter((item) => {
+    return props.rows.filter(item => {
       return Object.entries(searchResults.value).every(([key, value]) => {
-        if (value.includes("|") && !value.includes("!")) {
-          let el = value.split("|");
-          return el.some((elem) =>
-            (item[key] || "")
-              .toString()
-              .toUpperCase()
-              .startsWith(elem.toString().toUpperCase())
+        if (value.includes('|') && !value.includes('!')) {
+          let el = value.split('|');
+          return el.some(elem =>
+            (item[key] || '').toString().toUpperCase().startsWith(elem.toString().toUpperCase()),
           );
         }
-        if (value.substring(0, 1) === "!" && !value.includes("|")) {
-          let el = value.split("!");
+        if (value.substring(0, 1) === '!' && !value.includes('|')) {
+          let el = value.split('!');
           return el.some(
-            (elem) =>
-              !(item[key] || "")
-                .toString()
-                .toUpperCase()
-                .startsWith(elem.toString().toUpperCase())
+            elem =>
+              !(item[key] || '').toString().toUpperCase().startsWith(elem.toString().toUpperCase()),
           );
         }
-        if (value.includes("|") && value.substring(0, 1) === "!") {
-          let el = value.split("!")[1].split("|");
-          return !el.some((elem) =>
-            (item[key] || "")
-              .toString()
-              .toUpperCase()
-              .startsWith(elem.toString().toUpperCase())
+        if (value.includes('|') && value.substring(0, 1) === '!') {
+          let el = value.split('!')[1].split('|');
+          return !el.some(elem =>
+            (item[key] || '').toString().toUpperCase().startsWith(elem.toString().toUpperCase()),
           );
         }
-        if (value.substring(0, 1) === ">") {
-          let el = value.split(">");
-          if (item[key] !== " ") {
-            return Number(item[key] || "") > el[1];
+        if (value.substring(0, 1) === '>') {
+          let el = value.split('>');
+          if (item[key] !== ' ') {
+            return Number(item[key] || '') > el[1];
           }
         }
-        if (value.substring(0, 1) === "<") {
-          let el = value.split("<");
-          if (item[key] !== " ") {
-            return Number(item[key] || "") < el[1];
+        if (value.substring(0, 1) === '<') {
+          let el = value.split('<');
+          if (item[key] !== ' ') {
+            return Number(item[key] || '') < el[1];
           }
         }
-        if (value.substring(0, 1) === "=") {
-          let el = value.split("=");
-          return (
-            (item[key] || "").toString().toUpperCase() ===
-            el[1].toString().toUpperCase()
-          );
+        if (value.substring(0, 1) === '=') {
+          let el = value.split('=');
+          return (item[key] || '').toString().toUpperCase() === el[1].toString().toUpperCase();
         }
-        return (item[key] || "")
-          .toString()
-          .toUpperCase()
-          .includes(value.toString().toUpperCase());
+        return (item[key] || '').toString().toUpperCase().includes(value.toString().toUpperCase());
       });
     });
   } else {

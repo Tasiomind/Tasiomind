@@ -12,27 +12,16 @@ import config from 'config/app.config';
 export default (sequelize, DataTypes) => {
   class Application extends Model {
     static associate(models) {
-      Application.hasMany(models.User, {
-        foreignKey: 'applicationID',
-        as: 'users',
-      });
+      Application.seedDefaultApplications();
     }
     static async seedDefaultApplications() {
-      try {
-        for (const applicationData of config.defaultApplications) {
-          const existingApplication = await Application.findOne({
-            where: { clientID: applicationData.clientID },
-          });
-          if (!existingApplication) {
-            await Application.create(applicationData);
-            console.log(`Created application: ${applicationData.name}`);
-          } else {
-            console.log(`Application "${applicationData.name}" already exists, skipping creation.`);
-          }
+      for (const applicationData of config.defaultApplications) {
+        const existingApplication = await Application.findOne({
+          where: { clientID: applicationData.clientID },
+        });
+        if (!existingApplication) {
+          await Application.create(applicationData);
         }
-      } catch (err) {
-        console.error('Error seeding default applications:', err);
-        Sentry.captureException(err);
       }
     }
   }
@@ -110,8 +99,6 @@ export default (sequelize, DataTypes) => {
       },
     },
   );
-
-  Application.seedDefaultApplications();
 
   return Application;
 };

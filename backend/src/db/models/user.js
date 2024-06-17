@@ -47,39 +47,37 @@ export default (sequelize, DataTypes) => {
         onDelete: 'CASCADE',
         hooks: true,
       });
+      User.hasMany(models.Address, {
+        as: 'addresses',
+        foreignKey: 'userId',
+        onDelete: 'CASCADE',
+      });
+      User.hasOne(models.ApplicationSetting, {
+        as: 'settings',
+        foreignKey: 'userId',
+        onDelete: 'CASCADE',
+        hooks: true,
+      });
     }
 
     static async seedDefaultUsers() {
-      try {
-        for (const userData of config.defaultUsers) {
-          const existingUser = await User.findOne({ where: { email: userData.email } });
-          if (!existingUser) {
-            const newUser = await User.create(userData);
-            await this.assignUserRole(newUser, userData.roles);
-            console.log(`Created user: ${userData.email}`);
-          } else {
-            await this.assignUserRole(existingUser, userData.roles);
-            console.log(`User "${userData.email}" already exists, skipping creation.`);
-          }
+      for (const userData of config.defaultUsers) {
+        const existingUser = await User.findOne({ where: { email: userData.email } });
+        if (!existingUser) {
+          const newUser = await User.create(userData);
+          await this.assignUserRole(newUser, userData.roles);
+        } else {
+          await this.assignUserRole(existingUser, userData.roles);
         }
-      } catch (error) {
-        console.error('Error seeding default users:', error);
       }
     }
 
     static async assignUserRole(user, roles) {
-      try {
-        for (const roleName of roles) {
-          const role = await sequelize.models.Role.findOne({ where: { name: roleName } });
-          if (role) {
-            await user.addRole(role);
-            console.log(`Assigned role '${roleName}' to user: ${user.email}`);
-          } else {
-            console.error(`Role '${roleName}' not found.`);
-          }
+      for (const roleName of roles) {
+        const role = await sequelize.models.Role.findOne({ where: { name: roleName } });
+        if (role) {
+          await user.addRole(role);
         }
-      } catch (error) {
-        console.error(`Error assigning roles to user ${user.email}:`, error);
       }
     }
 
@@ -176,6 +174,11 @@ export default (sequelize, DataTypes) => {
           return `user${otp.getNumberCode(15)}`;
         },
       },
+      descriptions: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        defaultValue: '',
+      },
       email: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -240,6 +243,15 @@ export default (sequelize, DataTypes) => {
             msg: USER_INVALID_PICTURE_URL_ERROR,
           },
         },
+      },
+      birthdate: {
+        type: DataTypes.DATE,
+      },
+      bio: {
+        type: DataTypes.STRING,
+      },
+      avatarUrl: {
+        type: DataTypes.VIRTUAL,
       },
       status: {
         type: DataTypes.ENUM(Object.values(ACCOUNT_STATUS)),

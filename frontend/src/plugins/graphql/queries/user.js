@@ -36,10 +36,7 @@ export const Me = gql`
 export const Users = gql`
   query Users {
     users {
-      code
-      success
-      message
-      users {
+      items {
         id
         firstName
         lastName
@@ -54,6 +51,13 @@ export const Users = gql`
         }
         createdAt
         updatedAt
+      }
+      totalCount
+      pageInfo {
+        startCursor
+        endCursor
+        hasNextPage
+        hasPreviousPage
       }
     }
   }

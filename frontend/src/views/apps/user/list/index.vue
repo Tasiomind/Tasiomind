@@ -1,8 +1,9 @@
 <script setup>
-import DataTable from "@/components/resource-table-data.vue";
-import DatepickerBasic from "@/components/date-range-picker.vue";
-import { useI18n } from "vue-i18n";
-import { encrypt } from "@/plugins/crypto.js";
+import DataTable from '@/components/resource-table-data.vue';
+import DatepickerBasic from '@/components/date-range-picker.vue';
+import { useI18n } from 'vue-i18n';
+import { encrypt } from '@/plugins/crypto.js';
+import { getAllUsers } from '@/services/user.service';
 
 const { t, d } = useI18n();
 
@@ -12,143 +13,135 @@ const rows = ref([]);
 const refUserForm = ref();
 
 const userData = ref({
-  name: "",
-  email: "",
-  company: "",
-  role: "",
-  status: "inactive",
+  name: '',
+  email: '',
+  company: '',
+  role: '',
+  status: 'inactive',
 });
 
-const fetchUsers = () => {
-  // .get("/api/users/list")
-  // .then((response) => {
-  //   users.value = response.data.users;
-  //   rows.value = formatUsers(response.data.users);
-  // })
-  // .catch((error) => {
-  //   console.log(error);
-  // });
+const fetchUsers = async () => {
+  getAllUsers().then(response => {
+    users.value = response.users.items;
+    console.log(users.value);
+    rows.value = formatUsers(response.users.items);
+  });
 };
 
 onMounted(fetchUsers);
 
-const formatUsers = (user) => user.map(userItemFormater);
+const formatUsers = user => user.map(userItemFormater);
 
-const getRoleColors = (role) => {
+const getRoleColors = role => {
   const roleColors = {
-    admin: "#FF5722",
-    user: "#2196F3",
-    moderator: "#4CAF50",
-    editor: "#FFC107",
-    guest: "#9E9E9E",
-    developer: "#673AB7",
+    root: '#F44339',
+    admin: '#FF5722',
+    user: '#2196F3',
+    moderator: '#4CAF50',
+    editor: '#FFC107',
+    guest: '#9E9E9E',
+    developer: '#673AB7',
   };
 
-  return roleColors[role] || "#000000";
+  return roleColors[role] || '#000000';
 };
 
-const userItemFormater = (user) => {
+const userItemFormater = user => {
   return {
     ...user,
-    id: user.ID,
-    status: {
-      color: getRoleColors(user.role),
-      title: user.role,
-    },
-    button: {
-      callback: (item) => {
-        deleteUser(item.id);
-      },
-      icon: "mdi-delete-outline",
-    },
-    created_at: d(user.created_at, "short"),
-    updated_at: d(user.updated_at, "short"),
+    roles: user.roles.map(role => ({
+      name: role.name,
+      color: getRoleColors(role.name),
+    })),
+    createdAt: d(user.createdAt, 'short'),
+    updatedAt: d(user.updatedAt, 'short'),
   };
 };
 
 const headers = [
   {
-    key: "id",
-    title: "ID",
+    key: 'id',
+    title: 'ID',
   },
   {
-    key: "name",
-    title: t("name"),
+    key: 'firstName',
+    title: t('name'),
   },
   {
-    key: "lastname",
-    title: t("lastname"),
+    key: 'lastName',
+    title: t('lastname'),
   },
   {
-    key: "username",
-    title: t("username"),
+    key: 'username',
+    title: t('username'),
   },
   {
-    key: "email",
-    title: t("email"),
+    key: 'email',
+    title: t('email'),
   },
   {
-    key: "phoneNumber",
-    title: t("phoneNumber"),
+    key: 'phoneNumber',
+    title: t('phoneNumber'),
   },
   {
-    key: "state",
-    title: t("role"),
+    key: 'roles',
+    title: t('role'),
   },
   {
-    key: "description",
-    title: t("description"),
+    key: 'locale',
+    title: t('locale'),
   },
   {
-    key: "created_at",
-    title: t("createdAt"),
+    key: 'status',
+    title: t('status'),
   },
   {
-    key: "updated_at",
-    title: t("updatedAt"),
+    key: 'createdAt',
+    title: t('createdAt'),
   },
   {
-    key: "button",
+    key: 'updatedAt',
+    title: t('updatedAt'),
   },
 ];
 
 // breadcrumbs
 const breadcrumbs = [
   {
-    title: "Home",
+    title: 'Home',
     disabled: false,
-    to: { path: "/" },
+    to: { path: '/' },
   },
   {
-    title: "User",
+    title: 'User',
     disabled: true,
   },
   {
-    title: "List",
+    title: 'List',
     disabled: true,
   },
 ];
 
 const roleItems = [
-  { title: "Admin", value: "1" },
-  { title: "User", value: "2" },
-  { title: "Moderator", value: "3" },
-  { title: "editor", value: "4" },
-  { title: "guest", value: "5" },
-  { title: "developer", value: "6" },
+  { title: 'Admin', value: '1' },
+  { title: 'User', value: '2' },
+  { title: 'Moderator', value: '3' },
+  { title: 'editor', value: '4' },
+  { title: 'guest', value: '5' },
+  { title: 'developer', value: '6' },
 ];
 
 // getting chip color
-const resolveChipColor = (value) => {
-  if (value === "active") return "success";
-  else if (value === "inactive") return "error";
-  else return "warning";
+const resolveChipColor = value => {
+  if (value === 'active') return 'success';
+  else if (value === 'inactive') return 'error';
+  else return 'warning';
 };
 
 const isAddUserDialogVisible = ref(false);
 
 // delete user
-const deleteUser = (userId) => {
+const deleteUser = userId => {
   console.log(userId);
   // .delete(`/api/users/delete`, {
   //   data: {
@@ -196,11 +189,11 @@ const addUser = async () => {
 };
 const createItems = [
   {
-    label: t("AddNewUser"),
+    label: t('AddNewUser'),
     callback: () => {
       isAddUserDialogVisible.value = !isAddUserDialogVisible.value;
     },
-    icon: "create",
+    icon: 'create',
   },
 ];
 </script>
@@ -231,28 +224,28 @@ const createItems = [
                   <VTextField
                     v-model="userData.name"
                     :label="t('name')"
-                    :rules="[(v) => !!v || t('nameIsRequired')]"
+                    :rules="[v => !!v || t('nameIsRequired')]"
                   />
                 </VCol>
                 <VCol md="6" cols="12">
                   <VTextField
                     v-model="userData.lastname"
                     :label="t('lastname')"
-                    :rules="[(v) => !!v || t('lastnameIsRequired')]"
+                    :rules="[v => !!v || t('lastnameIsRequired')]"
                   />
                 </VCol>
                 <VCol md="6" cols="12">
                   <VTextField
                     v-model="userData.username"
                     :label="t('username')"
-                    :rules="[(v) => !!v || t('usernameIsRequired')]"
+                    :rules="[v => !!v || t('usernameIsRequired')]"
                   />
                 </VCol>
                 <VCol md="6" cols="12">
                   <VTextField
                     v-model="userData.email"
                     :label="t('email')"
-                    :rules="[(v) => !!v || t('emailIsRequired')]"
+                    :rules="[v => !!v || t('emailIsRequired')]"
                   />
                 </VCol>
 
@@ -260,7 +253,7 @@ const createItems = [
                   <VTextField
                     v-model="userData.phoneNumber"
                     :label="t('phoneNumber')"
-                    :rules="[(v) => !!v || t('phoneNumberIsRequired')]"
+                    :rules="[v => !!v || t('phoneNumberIsRequired')]"
                   />
                 </VCol>
 
@@ -277,7 +270,7 @@ const createItems = [
                   <VTextField
                     v-model="userData.password"
                     :label="t('password')"
-                    :rules="[(v) => !!v || t('passwordIsRequired')]"
+                    :rules="[v => !!v || t('passwordIsRequired')]"
                   />
                 </VCol>
                 <VCol cols="12">
@@ -285,19 +278,14 @@ const createItems = [
                     v-model="userData.descriptions"
                     placeholder="Descriptions..."
                     label="Descriptions"
-                    :rules="[(v) => !!v || 'Descriptions filed is required']"
+                    :rules="[v => !!v || 'Descriptions filed is required']"
                     rows="3"
                   />
                 </VCol>
 
                 <VCol cols="12">
-                  <VBtn
-                    color="success"
-                    variant="tonal"
-                    type="submit"
-                    class="me-4"
-                  >
-                    {{ t("Submit") }}
+                  <VBtn color="success" variant="tonal" type="submit" class="me-4">
+                    {{ t('Submit') }}
                   </VBtn>
                   <VBtn
                     color="secondary"
@@ -305,7 +293,7 @@ const createItems = [
                     type="reset"
                     @click="isAddUserDialogVisible = false"
                   >
-                    {{ t("Cancel") }}
+                    {{ t('Cancel') }}
                   </VBtn>
                 </VCol>
               </VRow>
