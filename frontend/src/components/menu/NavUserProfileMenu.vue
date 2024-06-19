@@ -1,7 +1,6 @@
 <script setup>
 import { useAuthStore } from '@/stores';
 
-
 const { t } = useI18n();
 
 const authStore = useAuthStore();
@@ -12,12 +11,12 @@ onMounted(() => {
   quickLinks.value = [
     {
       title: t('Users'),
-      to: '/users/list',
+      to: { name: 'user-list' },
       icon: 'mdi-account-group-outline',
     },
     {
       title: t('Edit'),
-      to: '/edit/',
+      to: 'account',
       icon: 'mdi-account-group-outline',
     },
   ];

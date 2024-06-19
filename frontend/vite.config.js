@@ -17,7 +17,7 @@ export default defineConfig({
   },
   plugins: [
     mkcert(),
-    VueDevTools(),
+    // VueDevTools(),
     vue({
       template: {
         compilerOptions: {

@@ -1,5 +1,5 @@
 <script setup>
-import { useLocale } from "vuetify";
+import { useLocale } from 'vuetify';
 
 const { t } = useLocale();
 
@@ -9,7 +9,7 @@ defineOptions({
 
 // 👉 Is App Search Bar Visible
 const isAppSearchBarVisible = ref(false);
-const searchQuery = ref("");
+const searchQuery = ref('');
 const searchResult = ref([]);
 
 // watch(searchQuery, () => {
@@ -21,9 +21,7 @@ const searchResult = ref([]);
 //   })
 // }, { immediate: true })
 
-const LazyAppBarSearch = defineAsyncComponent(() =>
-  import("@/components/GlobalSearch.vue")
-);
+const LazyAppBarSearch = defineAsyncComponent(() => import('@/components/GlobalSearch.vue'));
 </script>
 
 <template>
@@ -41,7 +39,7 @@ const LazyAppBarSearch = defineAsyncComponent(() =>
       </VBtn>
 
       <span class="d-none d-md-flex align-center text-high-emphasis">
-        <span class="text-sm me-3">{{ t("Search") }}</span>
+        <span class="text-sm me-3">{{ t('Search') }}</span>
         <span class="meta-key">CtrlK</span>
       </span>
     </slot>

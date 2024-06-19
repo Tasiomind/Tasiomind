@@ -4,7 +4,7 @@ import DatepickerBasic from '@/components/date-range-picker.vue';
 import { useI18n } from 'vue-i18n';
 import { encrypt } from '@/plugins/crypto.js';
 import { getAllUsers } from '@/services/user.service';
-
+import AddUser from '@/components/user/addUser.vue';
 const { t, d } = useI18n();
 
 // users
@@ -53,6 +53,12 @@ const userItemFormater = user => {
       name: role.name,
       color: getRoleColors(role.name),
     })),
+    button: {
+      callback: item => {
+        deleteUser(item.id);
+      },
+      icon: 'mdi-delete-outline',
+    },
     createdAt: d(user.createdAt, 'short'),
     updatedAt: d(user.updatedAt, 'short'),
   };
@@ -103,6 +109,9 @@ const headers = [
     key: 'updatedAt',
     title: t('updatedAt'),
   },
+  {
+    key: 'button',
+  },
 ];
 
 // breadcrumbs
@@ -143,50 +152,8 @@ const isAddUserDialogVisible = ref(false);
 // delete user
 const deleteUser = userId => {
   console.log(userId);
-  // .delete(`/api/users/delete`, {
-  //   data: {
-  //     userID: userId,
-  //   },
-  // })
-  // .then((response) => {
-  //   if (response.status === 204) fetchUsers();
-  // })
-  // .catch((error) => {
-  //   console.log(error);
-  // });
 };
 
-const addUser = async () => {
-  const validation = await refUserForm.value?.validate();
-
-  if (validation?.valid) {
-    try {
-      console.log(userData.value);
-      var nameHash = encrypt(userData.value.name);
-      var lastnameHash = encrypt(userData.value.lastname);
-      var usernameHash = encrypt(userData.value.username);
-      var emailHash = encrypt(userData.value.email);
-      var roleHash = encrypt(userData.value.role);
-      var phoneNumberHash = encrypt(userData.value.phoneNumber);
-      var passwordHash = encrypt(userData.value.password);
-      var descriptionsHash = encrypt(userData.value.descriptions);
-      //   name: nameHash,
-      //   lastname: lastnameHash,
-      //   username: usernameHash,
-      //   email: emailHash,
-      //   role: roleHash,
-      //   phoneNumber: phoneNumberHash,
-      //   password: passwordHash,
-      //   description: descriptionsHash,
-      // });
-
-      isAddUserDialogVisible.value = false;
-      if (response.status === 201) fetchUsers();
-    } catch (error) {
-      console.error(error);
-    }
-  }
-};
 const createItems = [
   {
     label: t('AddNewUser'),
@@ -211,96 +178,10 @@ const createItems = [
         :rows="rows"
         :tableTitle="t('Users')"
         :isCellsSearchHiddenBTN="true"
-        :searchHidden="false"
+        :searchHidden="true"
         :createItems="createItems"
       />
-
-      <VDialog v-model="isAddUserDialogVisible" width="1000">
-        <VCard :title="t('AddNewUser')">
-          <VCardText>
-            <VForm ref="refUserForm" @submit.prevent="addUser">
-              <VRow>
-                <VCol md="6" cols="12">
-                  <VTextField
-                    v-model="userData.name"
-                    :label="t('name')"
-                    :rules="[v => !!v || t('nameIsRequired')]"
-                  />
-                </VCol>
-                <VCol md="6" cols="12">
-                  <VTextField
-                    v-model="userData.lastname"
-                    :label="t('lastname')"
-                    :rules="[v => !!v || t('lastnameIsRequired')]"
-                  />
-                </VCol>
-                <VCol md="6" cols="12">
-                  <VTextField
-                    v-model="userData.username"
-                    :label="t('username')"
-                    :rules="[v => !!v || t('usernameIsRequired')]"
-                  />
-                </VCol>
-                <VCol md="6" cols="12">
-                  <VTextField
-                    v-model="userData.email"
-                    :label="t('email')"
-                    :rules="[v => !!v || t('emailIsRequired')]"
-                  />
-                </VCol>
-
-                <VCol md="6" cols="12">
-                  <VTextField
-                    v-model="userData.phoneNumber"
-                    :label="t('phoneNumber')"
-                    :rules="[v => !!v || t('phoneNumberIsRequired')]"
-                  />
-                </VCol>
-
-                <VCol md="6" cols="12">
-                  <VSelect
-                    v-model="userData.role"
-                    :items="roleItems"
-                    item-title="title"
-                    item-value="value"
-                    :label="t('role')"
-                  />
-                </VCol>
-                <VCol cols="12">
-                  <VTextField
-                    v-model="userData.password"
-                    :label="t('password')"
-                    :rules="[v => !!v || t('passwordIsRequired')]"
-                  />
-                </VCol>
-                <VCol cols="12">
-                  <VTextarea
-                    v-model="userData.descriptions"
-                    placeholder="Descriptions..."
-                    label="Descriptions"
-                    :rules="[v => !!v || 'Descriptions filed is required']"
-                    rows="3"
-                  />
-                </VCol>
-
-                <VCol cols="12">
-                  <VBtn color="success" variant="tonal" type="submit" class="me-4">
-                    {{ t('Submit') }}
-                  </VBtn>
-                  <VBtn
-                    color="secondary"
-                    variant="tonal"
-                    type="reset"
-                    @click="isAddUserDialogVisible = false"
-                  >
-                    {{ t('Cancel') }}
-                  </VBtn>
-                </VCol>
-              </VRow>
-            </VForm>
-          </VCardText>
-        </VCard>
-      </VDialog>
+      <AddUser v-model="isAddUserDialogVisible" />
     </VCol>
   </VRow>
 </template>

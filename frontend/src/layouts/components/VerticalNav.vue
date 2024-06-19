@@ -1,13 +1,14 @@
 <script setup>
-import Logo from "@/components/svg/Logo.vue";
-import { useAppConfig } from "@/composable/useAppConfig";
-import verticalItems from "@/menus/vertical";
-import { appConfig } from "@appConfig";
-import { useLocale } from "vuetify";
-import VerticalNavGroup from "./VerticalNavGroup.vue";
-import VerticalNavLink from "./VerticalNavLink.vue";
-import { isGroupActive } from "./utils";
-import { useI18n } from "vue-i18n";
+import Logo from '@/components/svg/Logo.vue';
+import { useAppConfig } from '@/composable/useAppConfig';
+import verticalItems from '@/menus/vertical';
+import { appConfig } from '@appConfig';
+import { useLocale } from 'vuetify';
+import VerticalNavGroup from './VerticalNavGroup.vue';
+import VerticalNavLink from './VerticalNavLink.vue';
+import { isGroupActive } from './utils';
+import { useI18n } from 'vue-i18n';
+import { useAuthStore } from '@/stores/auth.store';
 
 const props = defineProps({
   isDrawerOpen: {
@@ -15,23 +16,30 @@ const props = defineProps({
     required: true,
   },
 });
+const authStore = useAuthStore();
 
-const emit = defineEmits(["update:isDrawerOpen"]);
-
+const emit = defineEmits(['update:isDrawerOpen']);
+const router = useRouter();
 const { t, d } = useI18n();
 
 const { isVerticalMenuMini, isSemiDark, skins } = useAppConfig();
 const OpenedGroup = ref([]);
 
 const resolveNavLinkGroup = computed(() => {
-  return (navItem) => (navItem.children ? VerticalNavGroup : VerticalNavLink);
+  return navItem => (navItem.children ? VerticalNavGroup : VerticalNavLink);
+});
+
+const filterNavItems = computed(() => {
+  return verticalItems.filter(item =>
+    authStore.hasAnyRole(router.resolve(item.to).meta.requiredRoles),
+  );
 });
 
 OpenedGroup.value = isGroupActive(verticalItems);
 
 // remove group active when only link active
 const handleGroupClose = () => {
-  OpenedGroup.value = [""];
+  OpenedGroup.value = [''];
 };
 </script>
 
@@ -41,12 +49,12 @@ const handleGroupClose = () => {
     :rail="$vuetify.display.lgAndUp ? isVerticalMenuMini : false"
     :expand-on-hover="$vuetify.display.lgAndUp ? isVerticalMenuMini : false"
     :model-value="$vuetify.display.lgAndUp ? true : props.isDrawerOpen"
-    :rail-width="skins === 'modern' ? 96 : 80"
+    :rail-width="skins === 'modern' ? 95 : 80"
     width="260"
     :theme="isSemiDark ? 'dark' : undefined"
     :permanent="$vuetify.display.lgAndUp"
     class="layout-vertical-nav"
-    @update:model-value="(val) => $emit('update:isDrawerOpen', val)"
+    @update:model-value="val => $emit('update:isDrawerOpen', val)"
   >
     <div class="d-flex flex-column h-100">
       <!-- title and logo -->
@@ -61,11 +69,7 @@ const handleGroupClose = () => {
           <!-- title -->
           <h6
             class="app-title text-h6 text-medium-emphasis font-weight-semibold"
-            :class="
-              $vuetify.display.lgAndUp && isVerticalMenuMini
-                ? 'rail-mode-is-on'
-                : ''
-            "
+            :class="$vuetify.display.lgAndUp && isVerticalMenuMini ? 'rail-mode-is-on' : ''"
           >
             <span class="text-gradient">{{ appConfig.title.value }}</span>
           </h6>
@@ -82,9 +86,7 @@ const handleGroupClose = () => {
         >
           <VIcon
             size="20"
-            :icon="
-              isVerticalMenuMini ? 'mdi-circle-outline' : 'mdi-radiobox-marked'
-            "
+            :icon="isVerticalMenuMini ? 'mdi-circle-outline' : 'mdi-radiobox-marked'"
           />
         </VBtn>
 
@@ -108,11 +110,8 @@ const handleGroupClose = () => {
         open-strategy="single"
         class="layout-vertical-nav-list text-high-emphasis"
       >
-        <template v-for="navItem in verticalItems" :key="navItem.title">
-          <VListSubheader
-            v-if="navItem.heading"
-            class="text-uppercase font-weight-bold"
-          >
+        <template v-for="navItem in filterNavItems" :key="navItem.title">
+          <VListSubheader v-if="navItem.heading" class="text-uppercase font-weight-bold">
             {{ t(navItem.heading) }}
           </VListSubheader>
 

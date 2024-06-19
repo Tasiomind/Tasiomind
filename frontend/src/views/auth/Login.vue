@@ -56,7 +56,10 @@ const validatePasswordRule = value => {
 };
 
 const login = async () => {
-  if (!validateEmailRule(loginData.value.email) || !validatePasswordRule(loginData.value.password)) {
+  if (
+    !validateEmailRule(loginData.value.email) ||
+    !validatePasswordRule(loginData.value.password)
+  ) {
     return;
   }
 
@@ -65,8 +68,6 @@ const login = async () => {
 
   if (data.success) {
     toast(t(data.message), { type: 'success' });
-    // router.push ({ path: '/' })
-  
   } else {
     handleLoginError(data);
   }
@@ -136,7 +137,9 @@ const handleLoginError = ({ message }) => {
                     :type="isPasswordVisible ? 'text' : 'password'"
                     :label="t('password')"
                     :rules="[validatePasswordRule]"
-                    :append-inner-icon="isPasswordVisible ? 'mdi-eye-off-outline' : 'mdi-eye-outline'"
+                    :append-inner-icon="
+                      isPasswordVisible ? 'mdi-eye-off-outline' : 'mdi-eye-outline'
+                    "
                     :error-messages="errors.password.message"
                     @click:append-inner="isPasswordVisible = !isPasswordVisible"
                   />

@@ -1,55 +1,54 @@
 <script setup>
-import Logo from '@/components/svg/Logo.vue'
-import NavUserProfileMenu from '@/components/menu/NavUserProfileMenu.vue'
-import { useAppConfig } from '@/composable/useAppConfig'
-import { appConfig } from '@appConfig'
-import { useLocale, useTheme } from 'vuetify'
-import GlobalSearch from './NavSearchBar.vue'
+import Logo from '@/components/svg/Logo.vue';
+import NavUserProfileMenu from '@/components/menu/NavUserProfileMenu.vue';
+import { useAppConfig } from '@/composable/useAppConfig';
+import { appConfig } from '@appConfig';
+import { useLocale, useTheme } from 'vuetify';
+import GlobalSearch from './NavSearchBar.vue';
 
 const props = defineProps({
   isDrawerOpen: {
     type: Boolean,
     required: true,
   },
-})
+});
 
-const emit = defineEmits(['update:isDrawerOpen'])
+const emit = defineEmits(['update:isDrawerOpen']);
 
-const { theme, navigationMenu, isNavbarFixed } = useAppConfig()
+const { theme, navigationMenu, isNavbarFixed } = useAppConfig();
 
-const themeVuetify = useTheme()
+const themeVuetify = useTheme();
 
-watch(theme, () => {
-  themeVuetify.global.name.value = theme.value
-}, { immediate: true })
+watch(
+  theme,
+  () => {
+    themeVuetify.global.name.value = theme.value;
+  },
+  { immediate: true },
+);
 
 const themeSwitcherIcon = computed(() => {
-  return theme.value !== 'dark' ? 'mdi-weather-sunny' : 'mdi-weather-night'
-})
+  return theme.value !== 'dark' ? 'mdi-weather-sunny' : 'mdi-weather-night';
+});
 
 const themeSwitcher = () => {
-  theme.value = theme.value === 'dark' ? 'light' : 'dark'
-}
+  theme.value = theme.value === 'dark' ? 'light' : 'dark';
+};
 
-const { current, t } = useLocale()
+const { current, t } = useLocale();
 
 const changeLocale = value => {
-  current.value = value.toLowerCase()
-  localStorage.setItem('app-locale', value.toLowerCase())
-  document.querySelector('html')?.setAttribute('lang', value)
-}
+  current.value = value.toLowerCase();
+  localStorage.setItem('app-locale', value.toLowerCase());
+  document.querySelector('html')?.setAttribute('lang', value);
+};
 
-const emails = [
-
-]
+const emails = [];
 </script>
 
 <template>
-  <VAppBar
-    class="layout-navbar"
-    :absolute="!isNavbarFixed"
-  >
-    <div class="navbar-wrapper">
+  <VAppBar class="layout-navbar" :absolute="!isNavbarFixed">
+    <div class="navbar-wrapper background">
       <!-- small screen navigation drawer toggler -->
       <VAppBarNavIcon
         v-show="$vuetify.display.mdAndDown"
@@ -82,11 +81,7 @@ const emails = [
       </template>
 
       <!-- light/dark theme switcher -->
-      <VBtn
-        :icon="themeSwitcherIcon"
-        variant="text"
-        @click="themeSwitcher"
-      />
+      <VBtn :icon="themeSwitcherIcon" variant="text" @click="themeSwitcher" />
 
       <!-- translation -->
       <VBtn icon>
@@ -95,7 +90,10 @@ const emails = [
         <VMenu activator="parent">
           <VList>
             <VListItem
-              v-for="(item, index) in [{ name: 'English', abr: 'en' }, { name: 'German', abr: 'de' }]"
+              v-for="(item, index) in [
+                { name: 'English', abr: 'en' },
+                { name: 'German', abr: 'de' },
+              ]"
               :key="index"
               :value="index"
               :active="$vuetify.locale.current === item.abr"

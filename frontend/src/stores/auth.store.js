@@ -9,7 +9,6 @@ import {
 } from '@/plugins/graphql/mutations';
 import { Me } from '@/plugins/graphql/queries';
 import { validateEmail, validatePassword } from '@/utils/validation';
-import {  saveAccessToken, saveRefreshToken, clearStorage } from './storage';
 
 export const useAuthStore = defineStore({
   id: 'auth',
@@ -37,7 +36,7 @@ export const useAuthStore = defineStore({
       const { mutate } = useMutation(LoginWithEmail);
       const { data } = await mutate({ email, password });
       this.setUser(data.loginWithEmail.user);
-      this.router.push({ name: 'home' })
+      this.router.push({ name: 'home' });
       return data.loginWithEmail;
     },
 
@@ -45,7 +44,7 @@ export const useAuthStore = defineStore({
       const { mutate } = useMutation(logoutMutation);
       await mutate({ all });
       this.clearAuthData();
-      console.log( this.router.push({ name: 'login' }).catch(err => {}))
+      this.router.push({ name: 'login' });
     },
 
     async requestPasswordReset(email) {
@@ -65,17 +64,10 @@ export const useAuthStore = defineStore({
     async refreshAuthToken() {
       const { mutate } = useMutation(RefreshToken);
       const { data } = await mutate();
-      if (data.refreshToken.success) {
-        saveAccessToken(data.refreshToken.accessToken);
-        saveRefreshToken(data.refreshToken.refreshToken);
-        this.setToken(data.refreshToken.accessToken);
-      } else {
-        return data.refreshToken;
-      }
     },
 
-    hasAnyRole(roles) {
-      if (!this.user || !Array.isArray(this.user.roles)) {
+    hasAnyRole(roles = []) {
+      if (!this.user || (!Array.isArray(this.user.roles) && !Array.isArray(roles))) {
         return false;
       }
       if (this.user.roles.some(userRole => userRole.name === 'root')) {
@@ -102,7 +94,6 @@ export const useAuthStore = defineStore({
     clearAuthData() {
       this.user = null;
       localStorage.removeItem('me');
-      clearStorage();
     },
     async isAuthenticated() {
       const { result, onResult } = useQuery(Me);

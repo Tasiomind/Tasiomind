@@ -4,7 +4,6 @@ import Blank from '@/layouts/Blank.vue';
 import Default from '@/layouts/Default.vue';
 import { appConfig } from '@appConfig';
 import { useRouter } from 'vue-router';
-import { encryptLocalIV } from '@/plugins/crypto';
 
 const route = useRouter();
 const { initLoadingTheme, rootClasses } = useAppConfig();

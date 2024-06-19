@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { useAuthStore } from '@/stores';
+
 const routes = [
   {
     path: '/',
@@ -12,20 +13,22 @@ const routes = [
   },
   {
     path: '/users/list',
-    name: 'apps-user-list',
+    name: 'user-list',
     component: () => import('@/views/apps/user/list/index.vue'),
     meta: {
       layout: 'content',
       requiresAuth: true,
-      requiredRoles: ['admin', 'editor', 'developer', 'moderator'],
+      requiredRoles: ['developer', 'moderator'],
     },
   },
+
   {
     path: '/login',
     name: 'login',
     component: () => import('@/views/auth/Login.vue'),
     meta: {
       layout: 'blank',
+      guestOnly: true,
     },
   },
   {
@@ -34,6 +37,7 @@ const routes = [
     component: () => import('@/views/auth/Register.vue'),
     meta: {
       layout: 'blank',
+      guestOnly: true,
     },
   },
   {
@@ -42,6 +46,7 @@ const routes = [
     component: () => import('@/views/auth/ForgotPassword.vue'),
     meta: {
       layout: 'blank',
+      guestOnly: true,
     },
   },
   {
@@ -50,6 +55,7 @@ const routes = [
     component: () => import('@/views/auth/ResetPassword.vue'),
     meta: {
       layout: 'blank',
+      guestOnly: true,
     },
   },
   {
@@ -58,11 +64,12 @@ const routes = [
     component: () => import('@/views/auth/VerifyEmail.vue'),
     meta: {
       layout: 'blank',
+      guestOnly: true,
     },
   },
   {
-    path: '/accessDenied',
-    name: 'accessDenied',
+    path: '/access-denied',
+    name: 'access-denied',
     component: () => import('@/views/pages/miscellaneous/MiscNotAuthorized.vue'),
     meta: {
       layout: 'blank',
@@ -70,7 +77,7 @@ const routes = [
   },
   {
     path: '/:pathMatch(.*)*',
-    name: 'NotFound',
+    name: 'not-found',
     component: () => import('@/views/NotFound.vue'),
     meta: {
       layout: 'blank',
@@ -80,34 +87,35 @@ const routes = [
 
 const router = createRouter({
   history: createWebHistory(),
-  scrollBehavior: () => {
-    return { top: 0, behavior: 'smooth' };
-  },
+  scrollBehavior: () => ({ top: 0, behavior: 'smooth' }),
   routes,
+  strict: true,
 });
 
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore();
   const isAuthenticated = await authStore.isAuthenticated();
-  const requiredRoles = to.meta.requiredRoles || ['*'];
-  const requiresAuth = to.meta.requiresAuth || false;
+  const { requiredRoles = ['*'], requiresAuth = false, guestOnly = false } = to.meta;
 
-  const authPages = ['login', 'register', 'forgot-password', 'reset-password'];
-  if (isAuthenticated && authPages.includes(to.name)) {
-    return next({ name: 'home' });
-  }
-
-  if (requiresAuth && !isAuthenticated) {
+  if (requiresAuth && !isAuthenticated && to.name !== 'login') {
     return next({ name: 'login' });
   }
 
-  if (!requiredRoles.includes('*') && Array.isArray(requiredRoles) && requiredRoles.length > 0) {
+  if (
+    !requiredRoles.includes('*') &&
+    Array.isArray(requiredRoles) &&
+    requiredRoles.length > 0 &&
+    isAuthenticated
+  ) {
     const userHasRequiredRoles = authStore.hasAnyRole(requiredRoles);
     if (!userHasRequiredRoles) {
       return next({ name: 'accessDenied' });
     }
   }
 
+  // if (guestOnly && isAuthenticated && to.name === 'login') {
+  //   return next({ name: 'home' });
+  // }
   return next();
 });
 
