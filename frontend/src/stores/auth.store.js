@@ -51,7 +51,6 @@ export const useAuthStore = defineStore({
           type: 'error',
         });
       }
-      return data.loginWithEmail;
     },
 
     async logout(all = false) {
@@ -64,30 +63,19 @@ export const useAuthStore = defineStore({
     async requestPasswordReset(email) {
       const { mutate } = useMutation(RequestPasswordReset);
       const { data } = await mutate({ email });
-      if (data.requestPasswordReset.success) {
-        toast(data.requestPasswordReset.message, {
-          type: 'success',
-        });
-      } else {
-        toast(data.requestPasswordReset.message, {
-          type: 'error',
-        });
-      }
-      return data.requestPasswordReset;
+      toast(data.requestPasswordReset.message, {
+        type: data.requestPasswordReset.success ? 'success' : 'error',
+      });
     },
 
     async resetPassword(token, password) {
       const { mutate } = useMutation(ResetPassword);
       const { data } = await mutate({ token, password });
+      toast(data.resetPassword.message, {
+        type: data.resetPassword.success ? 'success' : 'error',
+      });
       if (data.resetPassword.success) {
-        toast(data.resetPassword.message, {
-          type: 'success',
-        });
-        router.push({ name: 'login' });
-      } else {
-        toast(data.resetPassword.message, {
-          type: 'error',
-        });
+        this.router.push({ name: 'login' });
       }
     },
 
