@@ -1,12 +1,12 @@
-import { appConfig } from '@appConfig'
-import { createI18n } from 'vue-i18n'
-import en from './messages/en'
-import de from './messages/de'
+import { appConfig } from '@appConfig';
+import { createI18n } from 'vue-i18n';
+import en from '../../locale/en';
+import de from '../../locale/de';
 
 const messages = {
   en,
   de,
-}
+};
 
 export default createI18n({
   legacy: false,
@@ -15,23 +15,36 @@ export default createI18n({
   missingWarn: false,
   fallbackWarn: false,
   datetimeFormats: {
-    'en': {
+    en: {
       short: {
-        year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
       },
       dateonly: {
-        year: 'numeric', month: '2-digit', day: '2-digit'
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
       },
     },
-    'de': {
+    de: {
       short: {
-        year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
       },
       dateonly: {
-        year: 'numeric', month: '2-digit', day: '2-digit'
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
       },
-    }
-
+    },
   },
   messages,
-})
+});

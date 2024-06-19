@@ -171,6 +171,9 @@ module.exports = {
         map: [
           ['@', './src'],
           ['@appConfig', './appConfig.js'],
+          ['@axios', './src/plugins/axios.js'],
+          ['@mutations', './src/plugins/graphql/mutations'],
+          ['@queries', './src/plugins/graphql/queries'],
         ],
       },
     },

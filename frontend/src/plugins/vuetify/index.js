@@ -1,6 +1,5 @@
 import vueI18n from '@/plugins/i18n';
 import vuetify from '@/plugins/vuetify/vuetify';
-import { createPinia } from 'pinia';
 import Vue3Toastify from 'vue3-toastify';
 import router from '@/router';
 
@@ -9,8 +8,7 @@ const pinia = createPinia();
 pinia.use(({ store }) => {
   store.router = markRaw(router);
   store.toast = markRaw(Vue3Toastify);
-  
-})
+});
 const toastifyOptions = {
   position: 'bottom-right',
   autoClose: 5000,

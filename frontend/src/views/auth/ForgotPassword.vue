@@ -3,18 +3,14 @@ import authBgDark from '@/assets/pages/auth-bg-dark.svg';
 import authBgLight from '@/assets/pages/auth-bg-light.svg';
 import authForgotPasswordImg from '@/assets/pages/girl-forgot-something.png';
 import Logo from '@/components/svg/Logo.vue';
-import { useTheme } from 'vuetify';
-import { useI18n } from 'vue-i18n';
-import { toast } from 'vue3-toastify';
-import { useMutation } from '@vue/apollo-composable';
-import { RequestPasswordReset } from '@/plugins/graphql/mutations';
 import { validateEmail } from '@/utils/validation';
+import { useAuthStore } from '@/stores';
 
 const { t } = useI18n();
 const forgetPasswordForm = ref();
 const theme = useTheme();
 const email = ref('');
-const { mutate } = useMutation(RequestPasswordReset);
+const authStore = useAuthStore();
 
 const errors = ref({ email: false });
 
@@ -32,19 +28,7 @@ const sendResetLink = async () => {
 
   forgetPasswordForm.value.validate().then(async isValid => {
     if (isValid) {
-      const { data } = await mutate({
-        email: email.value,
-      });
-      console.log(data);
-      if (data.requestPasswordReset.success) {
-        toast(data.requestPasswordReset.message, {
-          type: 'success',
-        });
-      } else {
-        toast(data.requestPasswordReset.message, {
-          type: 'error',
-        });
-      }
+      await authStore.requestPasswordReset(email.value);
     }
   });
 };
@@ -56,7 +40,7 @@ const authBgThemeVariant = computed(() => {
 
 <template>
   <div class="auth-wrapper">
-    <VCard max-width="900" :width="$vuetify.display.smAndDown ? '500' : 'auto'">
+    <VCard max-width="900" class="auth-card" :width="$vuetify.display.smAndDown ? '500' : 'auto'">
       <VRow no-gutters>
         <VCol md="6" cols="12" class="pa-sm-8 pa-4">
           <VCardText class="d-flex align-center gap-2 pt-0 pb-1 text-primary">

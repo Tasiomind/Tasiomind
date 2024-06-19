@@ -3,7 +3,6 @@ import authBgDark from '@/assets/pages/auth-bg-dark.svg';
 import authBgLight from '@/assets/pages/auth-bg-light.svg';
 import authForgotPasswordImg from '@/assets/pages/girl-forgot-something.png';
 import Logo from '@/components/svg/Logo.vue';
-import { toast } from 'vue3-toastify';
 import { useTheme } from 'vuetify';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
@@ -27,7 +26,7 @@ onMounted(() => {});
 
 <template>
   <div class="auth-wrapper">
-    <VCard max-width="900" :width="$vuetify.display.smAndDown ? '500' : 'auto'">
+    <VCard max-width="900" class="auth-card" :width="$vuetify.display.smAndDown ? '500' : 'auto'">
       <VRow no-gutters>
         <VCol md="6" cols="12" class="pa-sm-8 pa-4">
           <VCardText class="d-flex align-center gap-2 pt-0 pb-1 text-primary">

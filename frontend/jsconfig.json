@@ -21,6 +21,7 @@
     "types": [
       "vuetify",
       "vite/client",
+      "vue3-toastify/global",
     ],
     "paths": {
       "@/*": [

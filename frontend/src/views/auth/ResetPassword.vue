@@ -3,16 +3,12 @@ import authBgDark from '@/assets/pages/auth-bg-dark.svg';
 import authBgLight from '@/assets/pages/auth-bg-light.svg';
 import authForgotPasswordImg from '@/assets/pages/girl-forgot-something.png';
 import Logo from '@/components/svg/Logo.vue';
-import { toast } from 'vue3-toastify';
-import { useTheme } from 'vuetify';
-import { useI18n } from 'vue-i18n';
-import { useRoute, useRouter } from 'vue-router';
-import { useMutation } from '@vue/apollo-composable';
-import { ResetPassword } from '@/plugins/graphql/mutations';
+
 import { validatePassword } from '@/utils/validation';
+import { useAuthStore } from '@/stores';
 
 const route = useRoute();
-const router = useRouter();
+const authStore = useAuthStore();
 
 const { t } = useI18n();
 const resetPasswordForm = ref({});
@@ -30,37 +26,12 @@ const passwordRules = [
   },
 ];
 
-const { mutate } = useMutation(ResetPassword);
-
 const resetPassword = async () => {
   if (!resetPasswordForm.value) {
     return;
   }
 
-  resetPasswordForm.value.validate().then(async isValid => {
-    if (isValid) {
-      try {
-        const { data } = await mutate({
-          token: token.value,
-          password: password.value,
-        });
-        console.log(data);
-        if (data.resetPassword.success) {
-          toast(data.resetPassword.message, {
-            type: 'success',
-          });
-          router.push({ name: 'login' });
-        } else {
-          toast(data.resetPassword.message, {
-            type: 'error',
-          });
-        }
-      } catch (error) {
-        console.error(error);
-        toast('An error occurred. Please try again.', { type: 'error' });
-      }
-    }
-  });
+  await authStore.resetPassword(token.value, password.value);
 };
 
 const authBgThemeVariant = computed(() => {
@@ -70,7 +41,7 @@ const authBgThemeVariant = computed(() => {
 
 <template>
   <div class="auth-wrapper">
-    <VCard max-width="900" :width="$vuetify.display.smAndDown ? '500' : 'auto'">
+    <VCard max-width="900" class="auth-card" :width="$vuetify.display.smAndDown ? '500' : 'auto'">
       <VRow no-gutters>
         <VCol md="6" cols="12" class="pa-sm-8 pa-4">
           <VCardText class="d-flex align-center gap-2 pt-0 pb-1 text-primary">

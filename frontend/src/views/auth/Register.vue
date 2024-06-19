@@ -3,13 +3,8 @@ import authBgDark from '@/assets/pages/auth-bg-dark.svg';
 import authBgLight from '@/assets/pages/auth-bg-light.svg';
 import authRegisterImg from '@/assets/pages/working-laptop-while-sitting-chair.png';
 import Logo from '@/components/svg/Logo.vue';
-import { useRoute, useRouter } from 'vue-router';
-import { useTheme } from 'vuetify';
-import { toast } from 'vue3-toastify';
-import { encrypt } from '@/plugins/crypto.js';
-import { useI18n } from 'vue-i18n';
-import { useMutation } from '@vue/apollo-composable';
-import { RegisterWithEmail } from '@/plugins/graphql/mutations';
+
+import { useAuthStore } from '@/stores/auth.store';
 import {
   validateName,
   validateUsername,
@@ -19,11 +14,10 @@ import {
 
 const { t } = useI18n();
 const registerForm = ref();
-const router = useRouter();
-const route = useRoute();
 const isPasswordVisible = ref(true);
 const isContentExpand = ref(true);
 const theme = useTheme();
+const authStore = useAuthStore();
 
 const registerData = ref({});
 
@@ -75,37 +69,14 @@ const passwordRules = [
   },
 ];
 
-const { mutate, onDone, onError } = useMutation(RegisterWithEmail);
-
 const authBgThemeVariant = computed(() => {
   return theme.current.value.dark ? authBgDark : authBgLight;
 });
 
-const register = () => {
+const submit = () => {
   registerForm.value?.validate().then(async isValid => {
     if (isValid.valid) {
-      await mutate({
-        firstName: registerData.value.firstName,
-        lastName: registerData.value.lastName,
-        username: registerData.value.username,
-        email: registerData.value.email,
-        password: registerData.value.password,
-      })
-        .then(({ data }) => {
-          toast('Registration successful', {
-            autoClose: 5000,
-            type: 'success',
-          });
-          router.replace(route.query.to ? String(route.query.to) : '/');
-        })
-        .catch(error => {
-          toast('Registration failed', {
-            autoClose: 5000,
-            type: 'error',
-          });
-          errors.value.email = error.response.data.email;
-          errors.value.username = error.response.data.username;
-        });
+      authStore.register(registerData.value);
     }
   });
 };
@@ -113,7 +84,7 @@ const register = () => {
 
 <template>
   <div class="auth-wrapper">
-    <VCard max-width="1500" :width="$vuetify.display.smAndDown ? '500' : 'auto'">
+    <VCard max-width="1500" class="auth-card" :width="$vuetify.display.smAndDown ? '500' : 'auto'">
       <VRow no-gutters>
         <VCol md="6" cols="12" class="pa-sm-8 pa-4">
           <VCardText class="d-flex align-center gap-2 pt-0 pb-1 text-primary">
@@ -135,7 +106,7 @@ const register = () => {
           </VCardItem>
 
           <VCardText>
-            <VForm ref="registerForm" @submit.prevent="register">
+            <VForm ref="registerForm" @submit.prevent="submit">
               <VExpandTransition>
                 <div v-show="isContentExpand">
                   <VRow no-gutters>
@@ -237,7 +208,7 @@ const register = () => {
                       errors.password
                     "
                   >
-                    register
+                    {{ t('Register') }}
                   </VBtn>
                 </div>
               </VExpandTransition>

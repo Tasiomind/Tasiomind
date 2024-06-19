@@ -4,14 +4,9 @@ import authBgLight from '@/assets/pages/auth-bg-light.svg';
 import authLoginImg from '@/assets/pages/working-desk-with-laptop.png';
 import Logo from '@/components/svg/Logo.vue';
 
-import { useRouter } from 'vue-router';
-import { useI18n } from 'vue-i18n';
-import { useTheme } from 'vuetify';
-import { useAuthStore } from '@/stores/auth.store';
+import { useAuthStore } from '@/stores';
 import { validateEmail, validatePassword } from '@/utils/validation';
-import { toast } from 'vue3-toastify';
 
-const router = useRouter();
 const { t } = useI18n();
 const theme = useTheme();
 const authStore = useAuthStore();
@@ -92,8 +87,8 @@ const handleLoginError = ({ message }) => {
 
 <template>
   <div class="auth-wrapper">
-    <VCard max-width="1000" :width="$vuetify.display.smAndDown ? '700' : 'auto'">
-      <VRow class="h-[40rem]" no-gutters>
+    <VCard class="auth-card" max-width="1000" :width="$vuetify.display.smAndDown ? '700' : 'auto'">
+      <VRow class="h-[35rem]" no-gutters>
         <VCol md="6" cols="12" class="pa-sm-9 pa-4" style="block-size: 33rem">
           <VCardText class="d-flex align-center gap-2 pt-0 pb-1 text-primary">
             <Logo />
@@ -112,15 +107,6 @@ const handleLoginError = ({ message }) => {
             </template>
           </VCardItem>
           <VCardText>
-            <VAlert color="info" variant="tonal" class="mb-6">
-              <strong>DEMO</strong>
-              <p class="mb-1">
-                <strong>{{ t('email') }}:</strong> <span>admin@admin.com</span>
-              </p>
-              <p class="mb-0">
-                <strong>{{ t('password') }}:</strong> <span>admin</span>
-              </p>
-            </VAlert>
             <VForm ref="loginForm" @submit.prevent="login">
               <VExpandTransition>
                 <div v-show="isContentExpanded">

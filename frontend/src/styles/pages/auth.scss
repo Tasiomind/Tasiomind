@@ -10,3 +10,13 @@
 .auth-wrapper-v2 {
   min-block-size: 100dvh;
 }
+
+
+.auth-card{
+
+    -webkit-box-shadow: 0 11px 34px 0 rgba(0, 0, 0, .2)!important;
+    box-shadow: 0 11px 34px 0 rgba(0, 0, 0, .2) !important;
+    border-radius: 34px !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    backdrop-filter: blur(10px) !important;
+  }

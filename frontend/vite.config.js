@@ -3,6 +3,7 @@ import vue from '@vitejs/plugin-vue';
 import { URL, fileURLToPath } from 'node:url';
 import AutoImport from 'unplugin-auto-import/vite';
 import VueDevTools from 'vite-plugin-vue-devtools';
+import pwaConfig from './pwa.config';
 import vuetify from 'vite-plugin-vuetify';
 import mkcert from 'vite-plugin-mkcert';
 import { VitePWA } from 'vite-plugin-pwa';
@@ -25,57 +26,10 @@ export default defineConfig({
         },
       },
     }),
-    VitePWA({
-      devOptions: {
-        enabled: true,
-      },
-      registerType: 'autoUpdate',
-      injectRegister: 'auto',
-      workbox: {
-        runtimeCaching: [
-          {
-            urlPattern: /\/api\/.*\/*.json/,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'api-cache',
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24,
-              },
-            },
-          },
-        ],
-      },
-      manifest: {
-        theme_color: '#8936FF',
-        background_color: '#2EC6FE',
-        icons: [
-          {
-            purpose: 'maskable',
-            sizes: '512x512',
-            src: 'icon512_maskable.png',
-            type: 'image/png',
-          },
-          {
-            purpose: 'any',
-            sizes: '512x512',
-            src: 'icon512_rounded.png',
-            type: 'image/png',
-          },
-        ],
-        orientation: 'any',
-        display: 'standalone',
-        dir: 'auto',
-        lang: 'en-EN',
-        name: 'Tasiomind',
-        short_name: 'TS',
-        start_url: '/',
-        id: 'sad',
-      },
-    }),
+    VitePWA(pwaConfig),
     // https://github.com/vuetifyjs/vuetify-loader/tree/next/packages/vite-plugin
     vuetify({
-      // autoImport: true,
+      autoImport: true,
       styles: {
         configFile: 'src/styles/vuetify/_variables.scss',
       },
@@ -85,7 +39,43 @@ export default defineConfig({
         enabled: true,
         filepath: './.eslintrc-auto-import.json',
       },
-      imports: ['vue', 'vue-router', 'vue-i18n', '@vueuse/head', '@vueuse/core'],
+      imports: [
+        'vue',
+        'vue-i18n',
+        'vue-router',
+        'pinia',
+        {
+          '@vueuse/core': [
+            'useMouse', // import { useMouse } from '@vueuse/core',
+            ['useFetch', 'useMyFetch'], // import { useFetch as useMyFetch } from '@vueuse/core',
+          ],
+          'axios': [
+            ['default', 'axios'], // import { default as axios } from 'axios',
+          ],
+          'vue3-toastify': [
+            'useToast', // import { useToast } from 'vue-toastification',
+            'toast', // import { toast } from 'vue-toastification',
+          ],
+          'pinia': [
+            'createPinia', // import { createPinia } from 'pinia',
+            'defineStore', // import { defineStore } from 'pinia',
+          ],
+          'vuetify': ['useTheme'],
+          'vue-router': [
+            'useRoute', // import { useRoute } from 'vue-router',
+            'useRouter', // import { useRouter } from 'vue-router',
+          ],
+          '@vue/apollo-composable': [
+            'useQuery', // import { useQuery } from '@vue/apollo-composable',
+            'useMutation', // import { useMutation } from '@vue/apollo-composable',
+          ],
+        },
+        {
+          from: 'vue-router',
+          imports: ['RouteLocationRaw'],
+          type: true,
+        },
+      ],
       vueTemplate: true,
     }),
   ],
@@ -94,6 +84,8 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
       '@appConfig': fileURLToPath(new URL('./appConfig.js', import.meta.url)),
       '@axios': fileURLToPath(new URL('./src/plugins/axios.js', import.meta.url)),
+      '@mutations': fileURLToPath(new URL('./src/plugins/graphql/mutations', import.meta.url)),
+      '@queries': fileURLToPath(new URL('./src/plugins/graphql/queries', import.meta.url)),
     },
     extensions: ['.js', '.json', '.jsx', '.mjs', '.ts', '.tsx', '.vue'],
   },

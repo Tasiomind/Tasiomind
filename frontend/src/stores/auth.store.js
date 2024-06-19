@@ -1,19 +1,18 @@
-import { defineStore } from 'pinia';
-import { useMutation, useQuery } from '@vue/apollo-composable';
 import {
   LoginWithEmail,
+  RegisterWithEmail,
   RequestPasswordReset,
   ResetPassword,
   logout as logoutMutation,
   // RefreshToken,
-} from '@/plugins/graphql/mutations';
-import { Me } from '@/plugins/graphql/queries';
+} from '@mutations';
+import { Me } from '@queries';
 import { validateEmail, validatePassword } from '@/utils/validation';
 
 export const useAuthStore = defineStore({
   id: 'auth',
   state: () => ({
-    user: null,
+    user: {},
   }),
 
   actions: {
@@ -40,6 +39,21 @@ export const useAuthStore = defineStore({
       return data.loginWithEmail;
     },
 
+    async register(register) {
+      const { mutate } = useMutation(RegisterWithEmail);
+
+      const { data } = await mutate(register);
+      if (data.registerWithEmail.success) {
+        this.router.push({ name: 'login' });
+      } else {
+        toast(data.registerWithEmail.message, {
+          autoClose: 5000,
+          type: 'error',
+        });
+      }
+      return data.loginWithEmail;
+    },
+
     async logout(all = false) {
       const { mutate } = useMutation(logoutMutation);
       await mutate({ all });
@@ -50,14 +64,30 @@ export const useAuthStore = defineStore({
     async requestPasswordReset(email) {
       const { mutate } = useMutation(RequestPasswordReset);
       const { data } = await mutate({ email });
+      if (data.requestPasswordReset.success) {
+        toast(data.requestPasswordReset.message, {
+          type: 'success',
+        });
+      } else {
+        toast(data.requestPasswordReset.message, {
+          type: 'error',
+        });
+      }
       return data.requestPasswordReset;
     },
 
     async resetPassword(token, password) {
       const { mutate } = useMutation(ResetPassword);
       const { data } = await mutate({ token, password });
-      if (!data.resetPassword.success) {
-        throw new Error(data.resetPassword.message);
+      if (data.resetPassword.success) {
+        toast(data.resetPassword.message, {
+          type: 'success',
+        });
+        router.push({ name: 'login' });
+      } else {
+        toast(data.resetPassword.message, {
+          type: 'error',
+        });
       }
     },
 
@@ -88,12 +118,10 @@ export const useAuthStore = defineStore({
 
     setUser(user) {
       this.user = user;
-      localStorage.setItem('me', JSON.stringify(user));
     },
 
     clearAuthData() {
       this.user = null;
-      localStorage.removeItem('me');
     },
     async isAuthenticated() {
       const { result, onResult } = useQuery(Me);

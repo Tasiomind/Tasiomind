@@ -96,6 +96,7 @@ router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore();
   const isAuthenticated = await authStore.isAuthenticated();
   const { requiredRoles = ['*'], requiresAuth = false, guestOnly = false } = to.meta;
+  if (!requiresAuth) return next();
 
   if (requiresAuth && !isAuthenticated && to.name !== 'login') {
     return next({ name: 'login' });
@@ -113,9 +114,9 @@ router.beforeEach(async (to, from, next) => {
     }
   }
 
-  // if (guestOnly && isAuthenticated && to.name === 'login') {
-  //   return next({ name: 'home' });
-  // }
+  if (guestOnly && isAuthenticated && to.name === 'login') {
+    return next({ name: 'home' });
+  }
   return next();
 });
 
