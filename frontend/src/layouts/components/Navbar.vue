@@ -1,5 +1,5 @@
 <script setup>
-import Logo from '@/components/svg/Logo.vue';
+import Logo from '@/assets/svg/Logo.vue';
 import NavUserProfileMenu from '@/components/menu/NavUserProfileMenu.vue';
 import { useAppConfig } from '@/composable/useAppConfig';
 import { appConfig } from '@appConfig';

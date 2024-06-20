@@ -70,6 +70,7 @@ type User {
   passwordResetAt: DateTime @auth(rules: [{ allow: owner, identityClaim: "id" }])
   lastLogin: DateTime
   status: AccountStatus! @auth(rules: [{ allow: owner, identityClaim: "id" }])
+  applicationSetting: ApplicationSetting
 }
 
 type UserList implements List {

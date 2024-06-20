@@ -24,7 +24,6 @@ onMounted(() => {
 
 const logOut = async () => {
   await authStore.logout();
-  // router.to("/login")
 };
 
 const usernameInitials = computed(() => {
@@ -40,7 +39,7 @@ const usernameInitials = computed(() => {
 <template>
   <VAvatar class="cursor-pointer" color="red">
     <VImg v-if="user.socialAvatarURL" :src="user.socialAvatarURL" />
-    <span v-else class="text-h5">{{ usernameInitials }}</span>
+    <span v-else class="text-h6">{{ usernameInitials }}</span>
     <VMenu activator="parent">
       <VList>
         <VListItem v-if="user">

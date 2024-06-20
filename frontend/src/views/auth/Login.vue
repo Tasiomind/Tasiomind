@@ -2,7 +2,7 @@
 import authBgDark from '@/assets/pages/auth-bg-dark.svg';
 import authBgLight from '@/assets/pages/auth-bg-light.svg';
 import authLoginImg from '@/assets/pages/working-desk-with-laptop.png';
-import Logo from '@/components/svg/Logo.vue';
+import Logo from '@/assets/svg/Logo.vue';
 
 import { useAuthStore } from '@/stores';
 import { validateEmail, validatePassword } from '@/utils/validation';

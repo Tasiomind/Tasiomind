@@ -2,7 +2,7 @@
 import authBgDark from '@/assets/pages/auth-bg-dark.svg';
 import authBgLight from '@/assets/pages/auth-bg-light.svg';
 import authForgotPasswordImg from '@/assets/pages/girl-forgot-something.png';
-import Logo from '@/components/svg/Logo.vue';
+import Logo from '@/assets/svg/Logo.vue';
 import { useTheme } from 'vuetify';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
