@@ -27,6 +27,18 @@ export const Me = gql`
         phoneNumber
         email
         fullName
+        applicationSettings {
+          id
+          theme
+          navigationMenu
+          isBoxLayout
+          isVerticalMenuMini
+          defaultLocale
+          isRtl
+          isSemiDark
+          skins
+          isNavbarFixed
+        }
       }
     }
   }

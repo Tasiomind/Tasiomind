@@ -1,7 +1,7 @@
-import QueryError from "~utils/errors/QueryError";
-import { Fail, Success } from "~helpers/response";
-import { USER_NOT_FOUND } from "~helpers/constants/responseCodes";
-import { ACCOUNT_STATUS } from "~helpers/constants/models";
+import QueryError from '~utils/errors/QueryError';
+import { Fail, Success } from '~helpers/response';
+import { USER_NOT_FOUND } from '~helpers/constants/responseCodes';
+import { ACCOUNT_STATUS } from '~helpers/constants/models';
 
 export default {
   User: {
@@ -15,21 +15,23 @@ export default {
       return user.id === currentUser?.id;
     },
     isLocked(user) {
-      return [ACCOUNT_STATUS.BLOCKED, ACCOUNT_STATUS.LOCKED].includes(
-        user.status
-      );
+      return [ACCOUNT_STATUS.BLOCKED, ACCOUNT_STATUS.LOCKED].includes(user.status);
     },
     async isLoggedIn(user, _args, { cache, clients }) {
-      const sessions = await cache.getMany(
-        clients.map((cid) => `${cid}:${user.id}`)
-      );
-      return sessions.some((session) => !!session);
+      const sessions = await cache.getMany(clients.map(cid => `${cid}:${user.id}`));
+      return sessions.some(session => !!session);
     },
     roles(user) {
       if (user.roles === undefined) {
         return user.getRoles();
       }
       return user.roles;
+    },
+    applicationSettings(user) {
+      if (user.applicationSettings === undefined) {
+        return user.getApplicationSettings();
+      }
+      return user.applicationSettings;
     },
   },
   Query: {
@@ -38,7 +40,7 @@ export default {
         const user = await dataSources.users.findOne({
           where: { id: currentUser.id },
           info,
-          path: "user",
+          path: 'user',
         });
 
         if (!user) {
@@ -60,7 +62,7 @@ export default {
         const user = await dataSources.users.findOne({
           where: { id },
           info,
-          path: "user",
+          path: 'user',
         });
 
         if (!user) {

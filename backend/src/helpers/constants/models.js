@@ -3,9 +3,12 @@ export const ROLES_ALIAS = 'roles';
 export const ROLE_MEMBERS_ALIAS = 'members';
 export const PERMISSIONS_ALIAS = 'permissions';
 export const USER_AVATAR_ALIAS = 'avatar';
+export const USER_ADDRESSES_ALIAS = 'addresses';
+export const APPLICATIONSETTINGS_ALIAS = 'applicationSettings';
 
 // foreign keys
 export const USER_ROLE_FOREIGN_KEY = 'roleId';
+export const USER_ADDRESS_FOREIGN_KEY = 'roleId';
 
 // join tables
 export const USER_ROLES_JOIN_TABLE = 'UserRoles';

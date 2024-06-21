@@ -95,11 +95,11 @@ export default defineConfig({
     https: true,
     proxy: {
       '/graphql': {
-        target: 'https://localhost:4000/',
+        target: 'https://localhost:4000/graphql',
         changeOrigin: true,
         secure: false,
         ws: false,
-        rewrite: path => path.replace(/^\/api/, ''),
+        rewrite: path => path.replace(/^\/graphql/, ''),
         configure: (proxy, _options) => {
           proxy.on('error', (err, _req, _res) => {
             console.log('Proxy-Fehler:', err);

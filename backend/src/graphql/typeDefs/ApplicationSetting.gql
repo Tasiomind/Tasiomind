@@ -1,5 +1,0 @@
-type ApplicationSetting {
-   th
-  createdAt: DateTime!
-  updatedAt: DateTime
-}

@@ -1,52 +1,161 @@
+# Query definitions
+"""
+Root query type for fetching user-related data.
+"""
 type Query {
+  """
+  Fetches the current authenticated user's information.
+  """
   me: UserPayload! @auth
+
+  """
+  Retrieves a user's information by their ID.
+  """
   getUserById(id: ID!): UserPayload! @auth
 
-  # admin
+  # Admin queries
+  """
+  Retrieves a paginated list of users with optional filtering.
+  Accessible only by admin users.
+  """
   users(page: ListPage, filter: UserFilter): UserList!
     @auth(rules: [{ allow: role, roles: ["admin"] }])
 }
 
+# Mutation definitions
+"""
+Root mutation type for modifying user-related data.
+"""
 type Mutation {
+  """
+  Updates the current authenticated user's full name.
+  """
   updateCurrentUserFullname(input: UpdateFullnameInput!): UserMutationResponse! @auth
+
+  """
+  Updates the current authenticated user's username.
+  """
   updateCurrentUserUsername(username: String!): UserMutationResponse! @auth
+
+  """
+  Updates the current authenticated user's locale.
+  """
   updateCurrentUserLocale(locale: Locale!): UserMutationResponse! @auth
+
+  """
+  Updates the current authenticated user's phone number.
+  """
   updateCurrentUserPhoneNumber(phoneNumber: PhoneNumber): UserMutationResponse! @auth
+
+  """
+  Updates the current authenticated user's time zone.
+  """
   updateCurrentUserTimeZone(timezone: TimeZone!): UserMutationResponse! @auth
+
+  """
+  Updates the current authenticated user's password.
+  """
   updateCurrentUserPassword(input: UpdatePasswordInput!): UserMutationResponse! @auth
+
+  """
+  Verifies the current authenticated user's phone number with a token.
+  """
   verifyPhoneNumber(token: String!): UserMutationResponse! @auth
+
+  """
+  Removes the current authenticated user's avatar.
+  """
   removeCurrentUserAvatar: UserMutationResponse! @auth
 
-  # Admin
+  # Admin mutations
+  """
+  Creates a new user. Accessible only by admin users.
+  """
   createUser(input: CreateUserInput!): UserMutationResponse!
     @auth(rules: [{ allow: role, roles: ["admin"] }])
+
+  """
+  Changes a user's full name. Accessible only by admin users.
+  """
   changeUserFullname(input: ChangeUserFullnameInput!): UserMutationResponse!
     @auth(rules: [{ allow: role, roles: ["admin"] }])
+
+  """
+  Changes a user's username. Accessible only by admin users.
+  """
   changeUserUsername(input: ChangeUsernameInput!): UserMutationResponse!
     @auth(rules: [{ allow: role, roles: ["admin"] }])
+
+  """
+  Changes a user's locale. Accessible only by admin users.
+  """
   changeUserLocale(input: ChangeUserLocaleInput!): UserMutationResponse!
     @auth(rules: [{ allow: role, roles: ["admin"] }])
+
+  """
+  Changes a user's email. Accessible only by admin users.
+  """
   changeUserEmail(input: ChangeUserEmailInput!): UserMutationResponse!
     @auth(rules: [{ allow: role, roles: ["admin"] }])
+
+  """
+  Changes a user's time zone. Accessible only by admin users.
+  """
   changeUserTimeZone(input: ChangeUserTimeZoneInput!): UserMutationResponse!
     @auth(rules: [{ allow: role, roles: ["admin"] }])
+
+  """
+  Changes a user's phone number. Accessible only by admin users.
+  """
   changeUserPhoneNumber(input: ChangeUserPhoneNumberInput!): UserMutationResponse!
     @auth(rules: [{ allow: role, roles: ["admin"] }])
+
+  """
+  Changes a user's password. Accessible only by admin users.
+  """
   changeUserPassword(input: ChangeUserPasswordInput!): UserMutationResponse!
     @auth(rules: [{ allow: role, roles: ["admin"] }])
+
+  """
+  Blocks a user with an optional reason. Accessible only by admin users.
+  """
   blockUser(id: ID!, reason: NonEmptyString): UserMutationResponse!
     @auth(rules: [{ allow: role, roles: ["admin"] }])
+
+  """
+  Unblocks a user with an optional reason. Accessible only by admin users.
+  """
   unblockUser(id: ID!, reason: NonEmptyString): UserMutationResponse!
     @auth(rules: [{ allow: role, roles: ["admin"] }])
+
+  """
+  Removes a user's avatar. Accessible only by admin users.
+  """
   removeUserAvatar(id: ID!): UserMutationResponse! @auth(rules: [{ allow: role, roles: ["admin"] }])
+
+  """
+  Deletes a user with a reason. Accessible only by admin users.
+  """
   deleteUser(id: ID!, reason: NonEmptyString): DeleteMutationResponse!
     @auth(rules: [{ allow: role, roles: ["admin"] }])
+
+  """
+  Assigns roles to a user. Accessible only by admin users.
+  """
   assignRolesToUser(userId: ID!, roleIds: [ID!]!): UserMutationResponse!
     @auth(rules: [{ allow: role, roles: ["admin"] }])
+
+  """
+  Removes roles from a user. Accessible only by admin users.
+  """
   removeRolesFromUser(userId: ID!, roleIds: [ID!]!): UserMutationResponse!
     @auth(rules: [{ allow: role, roles: ["admin"] }])
 }
 
+# User type definitions
+"""
+Represents a user in the system.
+"""
 type User {
   id: ID!
   firstName: String!
@@ -60,6 +169,7 @@ type User {
   isOwner: Boolean!
   isLoggedIn: Boolean! @auth(rules: [{ allow: role, roles: ["admin"] }])
   isLocked: Boolean!
+  birthdate: Date
   locale: Locale!
   timezone: TimeZone!
   emailVerified: Boolean!
@@ -70,15 +180,23 @@ type User {
   passwordResetAt: DateTime @auth(rules: [{ allow: owner, identityClaim: "id" }])
   lastLogin: DateTime
   status: AccountStatus! @auth(rules: [{ allow: owner, identityClaim: "id" }])
-  applicationSetting: ApplicationSetting
+  applicationSettings: ApplicationSettings
 }
 
+# List interface implementation for users
+"""
+Represents a paginated list of users.
+"""
 type UserList implements List {
   items: [User]!
   totalCount: Int!
   pageInfo: PageInfo!
 }
 
+# Enum for account status
+"""
+Enumeration of possible user account statuses.
+"""
 enum AccountStatus {
   BLOCKED
   LOCKED
@@ -86,6 +204,10 @@ enum AccountStatus {
   ACTIVE
 }
 
+# Payload for user queries
+"""
+Payload for user-related queries.
+"""
 type UserPayload implements Response {
   code: ID!
   success: Boolean!
@@ -93,6 +215,10 @@ type UserPayload implements Response {
   user: User
 }
 
+# Mutation response for user operations
+"""
+Response for user-related mutations, including form errors.
+"""
 type UserMutationResponse implements Response & FormErrors {
   code: ID!
   success: Boolean!
@@ -101,8 +227,10 @@ type UserMutationResponse implements Response & FormErrors {
   user: User
 }
 
-# Inputs
-
+# Input types for various mutations
+"""
+Input for creating a new user.
+"""
 input CreateUserInput {
   firstName: NonEmptyString!
   lastName: NonEmptyString!
@@ -114,57 +242,91 @@ input CreateUserInput {
   timezone: TimeZone
 }
 
+"""
+Input for updating the current user's full name.
+"""
 input UpdateFullnameInput {
   firstName: NonEmptyString!
   lastName: NonEmptyString!
 }
 
+"""
+Input for updating the current user's password.
+"""
 input UpdatePasswordInput {
   oldPassword: NonEmptyString!
   newPassword: NonEmptyString!
 }
 
+"""
+Input for changing a user's full name. Accessible only by admin users.
+"""
 input ChangeUserFullnameInput {
   id: ID!
   firstName: NonEmptyString!
   lastName: NonEmptyString!
 }
 
+"""
+Input for changing a user's username. Accessible only by admin users.
+"""
 input ChangeUsernameInput {
   id: ID!
   username: NonEmptyString!
 }
 
+"""
+Input for changing a user's email. Accessible only by admin users.
+"""
 input ChangeUserEmailInput {
   id: ID!
   email: EmailAddress!
 }
 
+"""
+Input for changing a user's password. Accessible only by admin users.
+"""
 input ChangeUserPasswordInput {
   id: ID!
   password: NonEmptyString!
 }
 
+"""
+Input for changing a user's locale. Accessible only by admin users.
+"""
 input ChangeUserLocaleInput {
   id: ID!
   locale: Locale!
 }
 
+"""
+Input for changing a user's phone number. Accessible only by admin users.
+"""
 input ChangeUserPhoneNumberInput {
   id: ID!
   phoneNumber: PhoneNumber
 }
 
+"""
+Input for changing a user's time zone. Accessible only by admin users.
+"""
 input ChangeUserTimeZoneInput {
   id: ID!
   timezone: TimeZone!
 }
 
+# Filters for querying users
+"""
+Filters for querying users based on attributes and associations.
+"""
 input UserFilter {
   where: UserAttributesWhere
   include: UserAssociationInclude
 }
 
+"""
+Filters for querying users based on their attributes.
+"""
 input UserAttributesWhere {
   id: IDFieldFilter
   firstName: StringFieldFilter
@@ -185,6 +347,9 @@ input UserAttributesWhere {
   not: [UserAttributesWhere!]
 }
 
+"""
+Filters for including associated data in user queries.
+"""
 input UserAssociationInclude {
   roles: RoleFilter
 }

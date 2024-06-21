@@ -13,6 +13,7 @@ export const useAuthStore = defineStore({
   id: 'auth',
   state: () => ({
     user: {},
+    applicationSettings: {},
   }),
 
   actions: {
@@ -108,6 +109,10 @@ export const useAuthStore = defineStore({
       this.user = user;
     },
 
+    setApplicationSettings(applicationSettings) {
+      this.applicationSettings = applicationSettings;
+    },
+
     clearAuthData() {
       this.user = null;
     },
@@ -124,6 +129,7 @@ export const useAuthStore = defineStore({
 
       if (data) {
         this.setUser(data.me.user);
+        this.setApplicationSettings(data.me.user?.applicationSettings);
         return data.me.success;
       }
 
@@ -133,6 +139,10 @@ export const useAuthStore = defineStore({
   getters: {
     getUser() {
       return this.user;
+    },
+
+    getApplicationSettings() {
+      return this.applicationSettings;
     },
 
     isAuthenticatedWithRole() {

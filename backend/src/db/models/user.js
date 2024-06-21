@@ -25,6 +25,7 @@ import {
   PERMISSIONS_ALIAS,
   ROLES_ALIAS,
   USER_AVATAR_ALIAS,
+  APPLICATIONSETTINGS_ALIAS,
   USER_ROLES_JOIN_TABLE,
 } from '~helpers/constants/models';
 import capitalize from 'lodash.capitalize';
@@ -47,13 +48,13 @@ export default (sequelize, DataTypes) => {
         onDelete: 'CASCADE',
         hooks: true,
       });
-      User.hasMany(models.Address, {
+      User.hasOne(models.Address, {
         as: 'addresses',
-        foreignKey: 'userId',
         onDelete: 'CASCADE',
+        hooks: true,
       });
-      User.hasOne(models.ApplicationSetting, {
-        as: 'settings',
+      User.hasOne(models.ApplicationSettings, {
+        as: APPLICATIONSETTINGS_ALIAS,
         foreignKey: 'userId',
         onDelete: 'CASCADE',
         hooks: true,

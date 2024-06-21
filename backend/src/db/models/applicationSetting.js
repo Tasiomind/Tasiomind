@@ -1,16 +1,15 @@
 import { uuidv4 } from '~utils/uuid';
 import { Sequelize, Model } from 'sequelize';
-
 import config from 'config/app.config';
 
 export default (sequelize, DataTypes) => {
-  class ApplicationSetting extends Model {
+  class ApplicationSettings extends Model {
     static async associate(models) {
-      ApplicationSetting.belongsTo(models.User, {
+      ApplicationSettings.belongsTo(models.User, {
         foreignKey: 'userId',
         onDelete: 'CASCADE',
       });
-      ApplicationSetting.seedDefaultApplicationSettings(models);
+      ApplicationSettings.seedDefaultApplicationSettings(models);
     }
 
     static async seedDefaultApplicationSettings(models) {
@@ -18,17 +17,17 @@ export default (sequelize, DataTypes) => {
       const user = await User.findOne();
       if (!user) return;
 
-      const existingApplicationSetting = await ApplicationSetting.findOne({
+      const existingApplicationSettings = await ApplicationSettings.findOne({
         where: { userId: user.id },
       });
 
-      if (existingApplicationSetting) return;
-      await ApplicationSetting.create({
+      if (existingApplicationSettings) return;
+      await ApplicationSettings.create({
         userId: user.id,
       });
     }
   }
-  ApplicationSetting.init(
+  ApplicationSettings.init(
     {
       id: {
         type: DataTypes.UUID,
@@ -114,10 +113,10 @@ export default (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: 'ApplicationSetting',
+      modelName: 'ApplicationSettings',
       timestamps: false,
     },
   );
 
-  return ApplicationSetting;
+  return ApplicationSettings;
 };

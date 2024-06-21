@@ -1,0 +1,63 @@
+type ApplicationSettings {
+  id: ID!
+  theme: String!
+  navigationMenu: String!
+  isBoxLayout: Boolean!
+  isVerticalMenuMini: Boolean!
+  defaultLocale: String!
+  isRtl: Boolean!
+  isSemiDark: Boolean!
+  skins: String!
+  isNavbarFixed: Boolean!
+}
+
+type Query {
+  getApplicationSettingsByUserId(id: ID!): ApplicationSettings!
+    @auth(rules: [{ allow: role, roles: ["admin"] }])
+
+  applicationSettings: [ApplicationSettings!]! @auth(rules: [{ allow: role, roles: ["admin"] }])
+}
+
+type Mutation {
+  createApplicationSettings(
+    input: CreateApplicationSettingsInput!
+  ): ApplicationSettingsMutationResponse! @auth(rules: [{ allow: role, roles: ["admin"] }])
+  updateApplicationSettings(
+    input: UpdateApplicationSettingsInput!
+  ): ApplicationSettingsMutationResponse! @auth(rules: [{ allow: role, roles: ["admin"] }])
+  deleteApplicationSettings(id: ID!, reason: NonEmptyString): DeleteMutationResponse!
+    @auth(rules: [{ allow: role, roles: ["admin"] }])
+}
+
+type ApplicationSettingsMutationResponse implements Response & FormErrors {
+  code: ID!
+  success: Boolean!
+  message: String!
+  errors: [FieldError!]
+  applicationSettings: ApplicationSettings
+}
+
+input CreateApplicationSettingsInput {
+  theme: String!
+  navigationMenu: String!
+  isBoxLayout: Boolean!
+  isVerticalMenuMini: Boolean!
+  defaultLocale: String!
+  isRtl: Boolean!
+  isSemiDark: Boolean!
+  skins: String!
+  isNavbarFixed: Boolean!
+}
+
+input UpdateApplicationSettingsInput {
+  id: ID!
+  theme: NonEmptyString!
+  navigationMenu: NonEmptyString!
+  isBoxLayout: Boolean!
+  isVerticalMenuMini: Boolean!
+  defaultLocale: NonEmptyString!
+  isRtl: Boolean!
+  isSemiDark: Boolean!
+  skins: NonEmptyString!
+  isNavbarFixed: Boolean!
+}
