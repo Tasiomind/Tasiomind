@@ -12,9 +12,10 @@ import TokenError from '~utils/errors/TokenError';
 import { CLIENTS_CACHE_KEY } from '~helpers/constants/auth';
 import { decryptLocalIV } from '~utils/crypto';
 import { getDecryptedCookie } from '~utils/cookieManager';
+import config from 'config/app.config';
 
 const contextMiddleware = async (req, res, next) => {
-  const { client_id: encryptedClientId } = req.headers;
+  const { client_id: encryptedClientId, version } = req.headers;
   const accessToken = getDecryptedCookie(req, 'accessToken');
   const clientId = decryptLocalIV(encryptedClientId);
   let tokenInfo;
@@ -25,6 +26,9 @@ const contextMiddleware = async (req, res, next) => {
   let clients = await cache.getJSON(CLIENTS_CACHE_KEY);
   const apps = await db.Application.findAll();
   clients = apps.map(app => app.clientID);
+
+  if (version === undefined || version === config.version)
+    return res.status(400).json({ message: 'version not supported any more' });
 
   if (!clients) {
     await cache.setJSON(CLIENTS_CACHE_KEY, clients, '365 days');

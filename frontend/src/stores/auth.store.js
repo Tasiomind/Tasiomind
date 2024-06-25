@@ -58,6 +58,7 @@ export const useAuthStore = defineStore({
       const { mutate } = useMutation(logoutMutation);
       await mutate({ all });
       this.clearAuthData();
+      localStorage.clear();
       this.router.push({ name: 'login' });
     },
 
@@ -99,6 +100,7 @@ export const useAuthStore = defineStore({
         }),
       );
     },
+
     hasAnyPermission(permissions) {
       return (
         this.user && permissions.some(permission => this.user.permissions.includes(permission))
@@ -115,7 +117,9 @@ export const useAuthStore = defineStore({
 
     clearAuthData() {
       this.user = null;
+      this.applicationSettings = null;
     },
+
     async isAuthenticated() {
       const { result, onResult } = useQuery(Me);
 
@@ -148,6 +152,7 @@ export const useAuthStore = defineStore({
     isAuthenticatedWithRole() {
       return this.user && this.user.roles.length > 0;
     },
+
     isAuthenticatedWithRouter() {
       if (this.user) return this.router.push('/');
     },

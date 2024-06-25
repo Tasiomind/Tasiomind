@@ -1,6 +1,7 @@
 <template>
   <div
     :id="data.id"
+    :class="['widget-container', { 'cursor-move': isEditing }]"
     :gs-id="data.id"
     :gs-x="data.grid.x"
     :gs-y="data.grid.y"
@@ -8,12 +9,10 @@
     :gs-h="data.grid.h"
   >
     <div
-      class="grid-stack-item-content group relative p-4 bg-slate-800 highlight-white/5 rounded-md shadow-md flex items-center justify-center"
+      class="grid-stack-item-content group relative highlight-white/5 rounded-md shadow-md flex items-center justify-center"
       :class="{ 'cursor-move': isEditing }"
     >
-      <span class="text-xl text-gray-300">
-        {{ data.title }}
-      </span>
+      <component :is="widgetComponent" v-bind="data" />
       <Button
         variant="error"
         size="sm"
@@ -40,6 +39,7 @@
     </div>
   </div>
 </template>
+
 <script setup>
 const props = defineProps({
   data: {
@@ -50,7 +50,23 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['delete']);
-function deleteWidget() {
+const deleteWidget = () => {
   emit('delete', props.data);
-}
+};
+
+const getWidgetComponent = type => {
+  switch (type) {
+    case 'users':
+      return defineAsyncComponent(() => import('@/components/user/users.vue'));
+    case 'data':
+      return defineAsyncComponent(() => import('@/components/datatables/DatatablesBasic.vue'));
+    case 'chart':
+      return defineAsyncComponent(() => import('@/components/charts/RadarChart.vue'));
+    default:
+      return null;
+  }
+};
+const widgetComponent = computed(() => getWidgetComponent(props.data.type));
 </script>
+
+<style scoped></style>

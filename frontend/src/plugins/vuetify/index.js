@@ -26,7 +26,6 @@ const toastifyOptions = {
   rtl: false,
 };
 
-// Register plugins function
 export const registerPlugins = app => {
   app.use(vuetify).use(pinia).use(router).use(vueI18n).use(Vue3Toastify, toastifyOptions);
 };

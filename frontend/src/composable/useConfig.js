@@ -7,7 +7,7 @@ export const config = c => ({
     ? ref(localStorage.getItem('app-menu'))
     : c.navigationMenu, // horizontal or vertical
   isBoxLayout: c.isBoxLayout,
-
+  clientID: c.clientID,
   isVerticalMenuMini: localStorage.getItem('app-menu-mini')
     ? ref(JSON.parse(localStorage.getItem('app-menu-mini')))
     : c.isVerticalMenuMini,
