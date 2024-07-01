@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/node';
 import config from 'config/app.config';
-import { nodeProfilingIntegration }('@sentry/profiling-node');
+import { nodeProfilingIntegration } from '@sentry/profiling-node';
 
 import '@sentry/tracing';
 

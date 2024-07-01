@@ -95,6 +95,15 @@ const lockUser = async (dataSources, mailer, user, locale) => {
   });
 };
 
+const checkIfEmailIsVerified = user => {
+  if (user.emailVerified) return true;
+
+  return Fail({
+    message: 'Email is not verified',
+    code: user.status,
+  });
+};
+
 const handleSuccessfulLogin = async (dataSources, jwt, cache, analytics, user, clientId) => {
   const { id, firstName } = user;
 
@@ -131,6 +140,7 @@ export default {
         const user = await findUserByEmail(dataSources, input.email);
         if (!user) throw new QueryError(INCORRECT_EMAIL);
 
+        checkIfEmailIsVerified(user);
         checkIfBlocked(user);
         checkIfLocked(user);
 

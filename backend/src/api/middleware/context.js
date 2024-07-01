@@ -15,9 +15,10 @@ import { getDecryptedCookie } from '~utils/cookieManager';
 import config from 'config/app.config';
 
 const contextMiddleware = async (req, res, next) => {
-  const { client_id: encryptedClientId, version } = req.headers;
+  const { client_id: encryptedClientId, ssv: encryptedSSV } = req.headers;
   const accessToken = getDecryptedCookie(req, 'accessToken');
   const clientId = decryptLocalIV(encryptedClientId);
+  const ssv = decryptLocalIV(encryptedSSV);
   let tokenInfo;
   let sessionId;
   let currentUser;
@@ -27,7 +28,7 @@ const contextMiddleware = async (req, res, next) => {
   const apps = await db.Application.findAll();
   clients = apps.map(app => app.clientID);
 
-  if (version === undefined || version === config.version)
+  if (ssv === undefined || ssv !== config.version)
     return res.status(400).json({ message: 'version not supported any more' });
 
   if (!clients) {
