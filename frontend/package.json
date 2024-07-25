@@ -89,7 +89,7 @@
     "vue3-perfect-scrollbar": "^2.0.0",
     "vue3-promise-dialog": "^0.3.4",
     "vue3-toastify": "^0.2.2",
-    "vuetify": "^3.6.10",
+    "vuetify": "^3.6.11",
     "vuex": "^4.1.0",
     "webfontloader": "^1.6.28",
     "yup": "^1.4.0"
