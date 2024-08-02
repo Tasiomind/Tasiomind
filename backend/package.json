@@ -77,7 +77,7 @@
     "email-templates": "^11.1.1",
     "express": "^4.19.2",
     "express-session": "^1.18.0",
-    "fs": "^0.0.1-security",
+    "fs": "^0.0.2",
     "google-auth-library": "^9.11.0",
     "graphql": "^16.9.0",
     "graphql-fields-list": "^2.2.4",
